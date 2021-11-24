@@ -316,7 +316,9 @@ class ANCDE(torch.nn.Module):
         if self.timewise:
             
             attention = self.time_attention(attention)
-            
+            # np.save(self.file_timewise, self.h_prime_list.cpu().detach().numpy()) 
+            # h_prime = self.time_attention's weight
+            h_prime= self.time_attention.weight
         
         if self.soft :
             

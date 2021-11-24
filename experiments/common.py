@@ -149,10 +149,7 @@ def _evaluate_metrics_forecasting(model_name, dataloader, model, times, loss_fn,
             else:
                 pred_y = model(times, coeffs, lengths, slope,stream=True, **kwargs)
 
-            # print("---true_y---")
-            # print(true_y[:,:,:6])
-            # print("---pred_y---")
-            # print(pred_y)
+            
             true_y_cpu = true_y.detach().cpu()
             pred_y_cpu = pred_y.detach().cpu()
             
@@ -437,7 +434,7 @@ def _train_loop(model_name,experiments,train_dataloader, val_dataloader,test_dat
 
                     tqdm_range.write('[Epoch: {}]  Test loss: {:.3}  Test AUC : {:.3}  slope: {:.5}  '
                                 ''.format(epoch, test_metrics.loss, test_metrics.auroc, slope))
-                    print(test_metrics.confusion)
+                    
 
             else:
                 tqdm_range.write('Epoch: {}  Train loss: {:.3}  Train accuracy: {:.3}  '
@@ -547,7 +544,7 @@ def main(experiments,model_name,name, times, train_dataloader, val_dataloader, t
     print(f"\nparameter of ATTENTION ODE FUNC {_count_parameters(regularise_parameters2)}")
     # optimizer = torch.optim.Adam(model.parameters(), lr=lr)
     optimizer = torch.optim.Adam(model.parameters(), lr=lr, weight_decay = 1e-4)
-    print("include weight decay")
+
     history,epoch = _train_loop(model_name,experiments,train_dataloader, val_dataloader,test_dataloader, model, times, optimizer, loss_fn, max_epochs,
                           num_classes,slope_check, device, kwargs, step_mode,c1,c2)
 
@@ -563,7 +560,7 @@ def main(experiments,model_name,name, times, train_dataloader, val_dataloader, t
         print("Test AUC : {} Test Loss : {}".format(test_metrics.auroc,test_metrics.loss))
         ckpt_final = PATH+str(experiments)+"_"+str(test_metrics.auroc)+"_fianl_model.pth"
     else:
-        print("Final testMetrics : {} Test Loss : {}".format(test_metrics.accuracy,test_metrics.loss))
+        print("Final test Metrics : {} Test Loss : {}".format(test_metrics.accuracy,test_metrics.loss))
         ckpt_final = PATH+str(experiments)+"_"+str(test_metrics.accuracy)+"_fianl_model.pth"
     
     torch.save({
