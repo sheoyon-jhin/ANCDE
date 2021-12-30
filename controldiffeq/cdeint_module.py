@@ -39,7 +39,7 @@ class VectorField_stack(torch.nn.Module):
             dX_dt: As cdeint.
             func: As cdeint.
             final_time: final time
-            file: save h', at file
+            file: save h'(h': dht/dt), at file
             
         """
         super(VectorField_stack, self).__init__()
@@ -80,10 +80,10 @@ class AttentiveVectorField(torch.nn.Module):
         Arguments:
             dX_dt: As cdeint.
             func_g: As cdeint.
-            X_s:
-            h_prime:
-            time:
-            attention:
+            X_s: Interpolated Value
+            h_prime: dht/dt               
+            time: timewise attention or not
+            attention: attention value created from ancde_bottom
         """
         super(AttentiveVectorField, self).__init__()
         if not isinstance(func_g, torch.nn.Module):
@@ -92,7 +92,7 @@ class AttentiveVectorField(torch.nn.Module):
         self.dX_dt = dX_dt
         self.func_g =func_g
         
-        self.X_s = X_s  # interpolated_value
+        self.X_s = X_s 
         
         self.h_prime=h_prime
         self.timewise = time
@@ -100,7 +100,7 @@ class AttentiveVectorField(torch.nn.Module):
         self.t_idx = t_idx
 
     def __call__(self, t, z):
-        Y = self.func_g(z) # attention * x 
+        Y = self.func_g(z) 
         
         control_gradient = self.dX_dt(t).float() # 32,4 # 32,12
         if self.timewise:
