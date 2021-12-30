@@ -6,16 +6,16 @@
   <img align="middle" src="./imgs/Neuralcde.png" alt="NeuralCDE"/> 
 </p>
 <p align="center">
-  <img align="middle" src="./imgs/AttentiveNeuralCDE.png" alt="ANCDE" width="800" height="350" /> 
+  <img align="middle" src="./imgs/AttentiveNeuralCDE.png" alt="ANCDE" /> 
 </p>
 <p align="center">
-  <img align="middle" src="./imgs/ANCDE_flow.png" alt="ANCDE_model_structure in detail" width="800" height="350" /> 
+  <img align="middle" src="./imgs/ANCDE_flow.png" alt="ANCDE_model_structure in detail"/> 
 </p>
 <p align="center">
-  <img align="middle" src="./imgs/sepsis.png" alt="PhysioNet Sepsis attention visualization" width="1000" height="350" /> 
+  <img align="middle" src="./imgs/sepsis.png" alt="PhysioNet Sepsis attention visualization"/> 
 </p>
 <p align="center">
-  <img align="middle" src="./imgs/stock.png" alt="Google Stock attention visualization" width="1000" height="350" /> 
+  <img align="middle" src="./imgs/stock.png" alt="Google Stock attention visualization"/> 
 </p>
 
 ### create conda environments
