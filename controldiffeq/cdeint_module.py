@@ -235,16 +235,11 @@ def ancde_bottom(dX_dt, z0, func, t,file, adjoint=True, **kwargs):
 
 def ancde(dX_dt,attention,z0,X_s, func_g,h_prime, t,timewise,adjoint=True , **kwargs):
 
-    
     control_gradient = dX_dt(torch.zeros(1, dtype=z0.dtype, device=z0.device))
-    
-    
     vector_field = func_g(z0) 
-    
     odeint = torchdiffeq.odeint_adjoint if adjoint else torchdiffeq.odeint
     vector_field = AttentiveVectorField(dX_dt=dX_dt, func_g =func_g,X_s=X_s,h_prime=h_prime,time=timewise,attention = attention)
-
-    
     out = odeint(func=vector_field.cuda(), y0=z0, t=t, **kwargs)
     return out
 
+ 
