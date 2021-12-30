@@ -51,7 +51,7 @@ def _evaluate_metrics(dataloader, model, times, loss_fn, num_classes, device, kw
         total_accuracy = 0
         total_confusion = torch.zeros(
             num_classes, num_classes
-        ).numpy()  # occurs all too often
+        ).numpy()  
         total_dataset_size = 0
         total_loss = 0
         true_y_cpus = []
@@ -71,12 +71,11 @@ def _evaluate_metrics(dataloader, model, times, loss_fn, num_classes, device, kw
             pred_y_cpu = pred_y.detach().cpu()
 
             if num_classes == 2:
-                # Assume that our datasets aren't so large that this breaks
+                
 
                 true_y_cpus.append(true_y_cpu)
                 pred_y_cpus.append(pred_y_cpu)
-                # confusion_true_y.append(true_y_cpu.tolist())
-                # confusion_pred_y.append(thresholded_y_cpu.tolist())
+                
             thresholded_y_cpu = thresholded_y.detach().cpu()
 
             total_accuracy += (thresholded_y == true_y).sum().to(pred_y.dtype)
@@ -84,8 +83,6 @@ def _evaluate_metrics(dataloader, model, times, loss_fn, num_classes, device, kw
                 true_y_cpu, thresholded_y_cpu, labels=range(num_classes)
             )
 
-            # if num_classes ==2:
-            #     full_confusion +=sklearn.metrics.classification_report(confusion_true_y,confusion_pred_y,target=range(num_classes))
             total_dataset_size += batch_size
             total_loss += loss_fn(pred_y, true_y) * batch_size
 
@@ -97,9 +94,9 @@ def _evaluate_metrics(dataloader, model, times, loss_fn, num_classes, device, kw
             dataset_size=total_dataset_size,
             loss=total_loss.item(),
         )
-        # import pdb ; pdb.set_trace()
+        
         if num_classes == 2:
-            # import pdb ; pdb.set_trace()
+            
             true_y_cpus = torch.cat(true_y_cpus, dim=0)
             pred_y_cpus = torch.cat(pred_y_cpus, dim=0)
 
@@ -107,10 +104,9 @@ def _evaluate_metrics(dataloader, model, times, loss_fn, num_classes, device, kw
             metrics.average_precision = sklearn.metrics.average_precision_score(
                 true_y_cpus, pred_y_cpus
             )
-        # sklearn.metrics.classification_report(true_y_cpu,thresholded_y_cpu)
-        import pdb
+        
 
-        pdb.set_trace()
+        
         return metrics
 
 
@@ -332,8 +328,6 @@ def main(
     )
 
     model.eval()
-    # train_metrics = _evaluate_metrics(train_dataloader, model, times, loss_fn, num_classes, device, kwargs)
-    # val_metrics = _evaluate_metrics(val_dataloader, model, times, loss_fn, num_classes, device, kwargs)
     test_metrics = _evaluate_metrics(
         test_dataloader, model, times, loss_fn, num_classes, device, kwargs
     )
