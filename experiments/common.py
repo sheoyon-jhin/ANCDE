@@ -35,12 +35,12 @@ BASELINE_MODELS_F = [
     "dt_forecasting",
 ]
 NCDE_BASELINES = ["gruode_forecasting", "ncde_forecasting"]
-LEARNABLEPATH = ["Learnable_Path"]
+
 import time_dataset
 import models
 from models import metamodel
 
-PATH = "/home/bigdyl/socar/NeuralCDE/experiments/trained_model/"
+PATH = os.path.dirname(os.path.abspath(__file__))+"/trained_model/"
 here = pathlib.Path(__file__).resolve().parent
 
 
@@ -102,10 +102,8 @@ def _evaluate_metrics(
             batch = tuple(b.to(device) for b in batch)
             *coeffs, true_y, lengths = batch
             batch_size = true_y.size(0)
-            if model_name in LEARNABLEPATH:
-                pred_y, loss_1, loss_2 = model(times, coeffs, lengths, slope, **kwargs)
-            else:
-                pred_y = model(times, coeffs, lengths, slope, **kwargs)
+            
+            pred_y = model(times, coeffs, lengths, slope, **kwargs)
             if len(pred_y.shape) == 2:
                 pred_y = pred_y.squeeze(-1)
             if num_classes == 2:
@@ -127,32 +125,19 @@ def _evaluate_metrics(
             total_dataset_size += batch_size
             loss_task = loss_fn(pred_y, true_y)
             total_loss += loss_task * batch_size
-            if model_name in LEARNABLEPATH:
-
-                mse_loss += loss_1 * batch_size
-                h_loss += loss_2 * batch_size
+            
 
         total_loss /= total_dataset_size  # assume 'mean' reduction in the loss function
         total_accuracy /= total_dataset_size
-        if model_name in LEARNABLEPATH:
-            mse_loss /= total_dataset_size
-            h_loss /= total_dataset_size
-            metrics = _AttrDict(
-                accuracy=total_accuracy.item(),
-                confusion=total_confusion,
-                dataset_size=total_dataset_size,
-                loss=total_loss.item(),
-                mse_loss=mse_loss.item(),
-                h_loss=h_loss.item(),
-            )
+        
 
-        else:
-            metrics = _AttrDict(
-                accuracy=total_accuracy.item(),
-                confusion=total_confusion,
-                dataset_size=total_dataset_size,
-                loss=total_loss.item(),
-            )
+        
+        metrics = _AttrDict(
+            accuracy=total_accuracy.item(),
+            confusion=total_confusion,
+            dataset_size=total_dataset_size,
+            loss=total_loss.item(),
+        )
 
         if num_classes == 2:
 
@@ -480,25 +465,13 @@ def _train_loop(
             with _SuppressAssertions(tqdm_range):
                 *train_coeffs, train_y, lengths = batch
 
-                if model_name in LEARNABLEPATH:
-                    pred_y, loss_1, loss_2 = model(
-                        times, train_coeffs, lengths, slope, **kwargs
-                    )
-
-                    if len(pred_y.shape) == 2:
-                        pred_y = pred_y.squeeze(-1)
-
-                    loss_h = c1 * loss_1 + c2 * loss_2
-                    loss = loss_fn(pred_y, train_y)
-                    final_loss = loss + loss_h
-                    final_loss.backward()
-                else:
-                    pred_y = model(times, train_coeffs, lengths, slope, **kwargs)
-                    # import pdb ; pdb.set_trace()
-                    if len(pred_y.shape) == 2:
-                        pred_y = pred_y.squeeze(-1)
-                    loss = loss_fn(pred_y, train_y)
-                    loss.backward()
+                
+                pred_y = model(times, train_coeffs, lengths, slope, **kwargs)
+                # import pdb ; pdb.set_trace()
+                if len(pred_y.shape) == 2:
+                    pred_y = pred_y.squeeze(-1)
+                loss = loss_fn(pred_y, train_y)
+                loss.backward()
 
                 optimizer.step()
                 optimizer.zero_grad()
@@ -540,8 +513,6 @@ def _train_loop(
             )
 
             model.train()
-
-            # import pdb ; pdb.set_trace()
 
             if train_metrics.loss * 1.0001 < best_train_loss:
                 best_train_loss = train_metrics.loss
@@ -721,7 +692,6 @@ def main(
     else:
         loss_fn = torch.nn.functional.cross_entropy
     loss_fn = _add_weight_regularisation(loss_fn, regularise_parameters)
-    # loss_fn = _add_weight_regularisation2(loss_fn, regularise_parameters,regularise_parameters2)
     model.to(device)
     print(f"\nparameter of Neural CDE {_count_parameters(model)}")
     print(
@@ -730,7 +700,7 @@ def main(
     print(
         f"\nparameter of ATTENTION ODE FUNC {_count_parameters(regularise_parameters2)}"
     )
-    # optimizer = torch.optim.Adam(model.parameters(), lr=lr)
+    
     optimizer = torch.optim.Adam(model.parameters(), lr=lr, weight_decay=1e-4)
 
     history, epoch = _train_loop(
@@ -752,43 +722,6 @@ def main(
         c1,
         c2,
     )
-
-    model.eval()
-    if slope_check:
-        slope = (epoch * 0.12) + 1.0
-    else:
-        slope = 0.0
-    train_metrics = _evaluate_metrics(
-        train_dataloader, model, times, loss_fn, num_classes, slope, device, kwargs
-    )
-    val_metrics = _evaluate_metrics(
-        val_dataloader, model, times, loss_fn, num_classes, slope, device, kwargs
-    )
-    test_metrics = _evaluate_metrics(
-        test_dataloader, model, times, loss_fn, num_classes, slope, device, kwargs
-    )
-    if num_classes == 2:
-        print(
-            "Test AUC : {} Test Loss : {}".format(test_metrics.auroc, test_metrics.loss)
-        )
-        ckpt_final = (
-            PATH + str(experiments) + "_" + str(test_metrics.auroc) + "_fianl_model.pth"
-        )
-    else:
-        print(
-            "Final test Metrics : {} Test Loss : {}".format(
-                test_metrics.accuracy, test_metrics.loss
-            )
-        )
-        ckpt_final = (
-            PATH
-            + str(experiments)
-            + "_"
-            + str(test_metrics.accuracy)
-            + "_fianl_model.pth"
-        )
-
-    torch.save({"epoch": epoch, "model_state_dict": model.state_dict(),}, ckpt_final)
     if device != "cpu":
         memory_usage = torch.cuda.max_memory_allocated(device) - baseline_memory
     else:
@@ -804,10 +737,7 @@ def main(
         test_dataloader=test_dataloader,
         model=model.to("cpu"),
         parameters=_count_parameters(model),
-        history=history,
-        train_metrics=train_metrics,
-        val_metrics=val_metrics,
-        test_metrics=test_metrics,
+        history=history
     )
     if name is not None:
         _save_results(name, result)
@@ -885,50 +815,6 @@ def main_forecasting(
         step_mode,
     )
 
-    model.eval()
-
-    if slope_check:
-        slope = (epoch * 0.12) + 1.0
-    else:
-        slope = 0.0
-
-    train_metrics = _evaluate_metrics_forecasting(
-        model_name,
-        train_dataloader,
-        model,
-        times,
-        loss_fn,
-        num_classes,
-        slope,
-        device,
-        kwargs,
-    )
-    val_metrics = _evaluate_metrics_forecasting(
-        model_name,
-        val_dataloader,
-        model,
-        times,
-        loss_fn,
-        num_classes,
-        slope,
-        device,
-        kwargs,
-    )
-    test_metrics = _evaluate_metrics_forecasting(
-        model_name,
-        test_dataloader,
-        model,
-        times,
-        loss_fn,
-        num_classes,
-        slope,
-        device,
-        kwargs,
-    )
-    ckpt_final = (
-        PATH + str(experiments) + "_" + str(test_metrics.auroc) + "_fianl_model.pth"
-    )
-    torch.save({"epoch": epoch, "model_state_dict": model.state_dict(),}, ckpt_final)
     if device != "cpu":
         memory_usage = torch.cuda.max_memory_allocated(device) - baseline_memory
     else:
@@ -944,10 +830,7 @@ def main_forecasting(
         test_dataloader=test_dataloader,
         model=model.to("cpu"),
         parameters=_count_parameters(model),
-        history=history,
-        train_metrics=train_metrics,
-        val_metrics=val_metrics,
-        test_metrics=test_metrics,
+        history=history
     )
     if name is not None:
         _save_results(name, result)
@@ -991,93 +874,6 @@ def make_model(
             )
             return model, vector_field
 
-    elif name == "double_ncde":
-
-        def make_model():
-            vector_field_f = models.FinalTanh_ff(
-                input_channels=input_channels,
-                hidden_atten_channels=attention_channel,
-                hidden_hidden_atten_channels=attention_attention_channel,
-                num_hidden_layers=num_hidden_layers,
-            )
-            vector_field_g = models.FinalTanh(
-                input_channels=input_channels,
-                hidden_channels=hidden_channels,
-                hidden_hidden_channels=hidden_hidden_channels,
-                num_hidden_layers=num_hidden_layers,
-            )
-            model = models.DoubleNeuralCDE(
-                func=vector_field_f,
-                func_g=vector_field_g,
-                input_channels=input_channels,
-                hidden_channels=hidden_channels,
-                output_channels=output_channels,
-                attention_channel=attention_channel,
-                slope_check=slope_check,
-                soft=soft,
-                timewise=timewise,
-                initial=initial,
-            )
-            return model, vector_field_g
-
-    elif name == "double_ncde_new":
-
-        def make_model():
-            vector_field_f = models.FinalTanh_ff(
-                input_channels=input_channels,
-                hidden_atten_channels=attention_channel,
-                hidden_hidden_atten_channels=attention_attention_channel,
-                num_hidden_layers=num_hidden_layers,
-            )
-            vector_field_g = models.FinalTanh(
-                input_channels=input_channels,
-                hidden_channels=hidden_channels,
-                hidden_hidden_channels=hidden_hidden_channels,
-                num_hidden_layers=num_hidden_layers,
-            )
-            model = models.DoubleNeuralCDE_debug(
-                func=vector_field_f,
-                func_g=vector_field_g,
-                input_channels=input_channels,
-                hidden_channels=hidden_channels,
-                output_channels=output_channels,
-                attention_channel=attention_channel,
-                slope_check=slope_check,
-                soft=soft,
-                timewise=timewise,
-                initial=initial,
-            )
-            return model, vector_field_g, vector_field_f
-
-    elif name == "double_ncde_socar":
-
-        def make_model():
-            vector_field_f = models.FinalTanh_socar(
-                input_channels=input_channels,
-                hidden_atten_channels=attention_channel,
-                hidden_hidden_atten_channels=attention_attention_channel,
-                num_hidden_layers=num_hidden_layers,
-            )
-            vector_field_g = models.FinalTanh(
-                input_channels=input_channels,
-                hidden_channels=hidden_channels,
-                hidden_hidden_channels=hidden_hidden_channels,
-                num_hidden_layers=num_hidden_layers,
-            )
-            model = models.DoubleNeuralCDE_socar(
-                func=vector_field_f,
-                func_g=vector_field_g,
-                input_channels=input_channels,
-                hidden_channels=hidden_channels,
-                output_channels=output_channels,
-                attention_channel=attention_channel,
-                slope_check=slope_check,
-                soft=soft,
-                timewise=timewise,
-                initial=initial,
-            )
-            return model, vector_field_g, vector_field_f
-
     elif name == "ancde":
 
         def make_model():
@@ -1105,41 +901,6 @@ def make_model(
                 timewise=timewise,
                 file=file,
                 initial=initial,
-            )
-            return model, vector_field_g, vector_field_f
-
-    elif name == "Learnable_Path":
-
-        def make_model():
-
-            vector_field_f = models.FinalTanh_f(
-                input_channels=input_channels,
-                hidden_channels=hidden_channels,
-                hidden_hidden_channels=hidden_hidden_channels,
-                num_hidden_layers=num_hidden_layers,
-            )
-            vector_field_g = models.FinalTanh_g(
-                input_channels=input_channels,
-                hidden_channels=hidden_channels,
-                hidden_hidden_channels=hidden_hidden_channels,
-                num_hidden_layers=num_hidden_layers,
-            )
-            vector_field_hide = models.FinalTanh_hide(
-                input_channels=input_channels,
-                hidden_channels=hidden_channels,
-                hidden_hidden_channels=hidden_hidden_channels,
-                num_hidden_layers=num_hidden_layers,
-            )
-            model = models.Learnable_Path(
-                func=vector_field_f,
-                func_g=vector_field_g,
-                func_h=vector_field_hide,
-                input_channels=input_channels,
-                hidden_channels=hidden_channels,
-                output_channels=output_channels,
-                initial=initial,
-                rtol=rtol,
-                atol=atol,
             )
             return model, vector_field_g, vector_field_f
 
