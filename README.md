@@ -17,8 +17,8 @@
   <img align="middle" src="./imgs/ANCDE_flow.png" alt="ANCDE_model_structure in detail"/> 
   The detailed architecture of our proposed attentive NCDE. From the raw time-series data x(t), the continuous path X(t) is created by the natural cubic spline algorithm. The bottom NCDE reads X(t) to produce attention values. The path Y(t) is defined as the (element-wise) multiplication of X(t) and the attention value at time t. The top NCDE produces the last hidden vector with Y(t). Our framework supports both classification and regression.
 </p>
-<p align="left">
-  <img align="left" src="./imgs/sepsis.png" alt="PhysioNet Sepsis attention visualization" width="400"/> 
+<p align="center">
+  <img align="center" src="./imgs/sepsis.png" alt="PhysioNet Sepsis attention visualization" width="400"/> 
   
 </p>
 <p>The soft attention visualization in physioNet Sepsis. Blue means strong attention and white means weak attention. Note that the bottom NCDE gives strong attention when there are non-trivial changes on the curves.</p>
