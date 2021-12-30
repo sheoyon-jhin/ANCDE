@@ -8,7 +8,8 @@ t_idx = 0
 h_prime_list = torch.Tensor()
 class VectorField(torch.nn.Module):
     def __init__(self, dX_dt, func):
-        """Defines a controlled vector field.
+        """
+        Defines a controlled vector field.
 
         Arguments:
             dX_dt: As cdeint.
@@ -22,40 +23,24 @@ class VectorField(torch.nn.Module):
         self.func = func
         self.sigmoid = torch.nn.Sigmoid()
     def __call__(self, t, z):
-        """
-        Arguments:
-            times: The times of the observations for the input path X, e.g. as passed as an argument to
-                `controldiffeq.natural_cubic_spline_coeffs`.
-            coeffs: The coefficients describing the input path X, e.g. as returned by
-                `controldiffeq.natural_cubic_spline_coeffs`.
-            final_index: Each batch element may have a different final time. This defines the index within the tensor
-                `times` of where the final time for each batch element is.
-            z0: See the 'initial' argument to __init__.
-            stream: Whether to return the result of the Neural CDE model at all times (True), or just the final time
-                (False). Defaults to just the final time. The `final_index` argument is ignored if stream is True.
-            **kwargs: Will be passed to cdeint.
-
-        Returns:
-            If stream is False, then this will return the terminal time z_T. If stream is True, then this will return
-            all intermediate times z_t, for those t for which there was data.
-        """
+        
         control_gradient = self.dX_dt(t).float() #1024,69
-        
-        
         vector_field = self.func(z) # 1024,49,69
-
-        
         out = (vector_field @ control_gradient.unsqueeze(-1)).squeeze(-1) 
          
         return out
 
 class VectorField_stack(torch.nn.Module):
     def __init__(self, dX_dt, func,final_time,file):
-        """Defines a controlled vector field.
+        """
+        Defines a controlled vector field and save h'
 
         Arguments:
             dX_dt: As cdeint.
             func: As cdeint.
+            final_time: final time
+            file: save h', at file
+            
         """
         super(VectorField_stack, self).__init__()
         if not isinstance(func, torch.nn.Module):
@@ -66,78 +51,39 @@ class VectorField_stack(torch.nn.Module):
         self.final_time = final_time
         self.h_prime_list = h_prime_list
         self.file = file
+
     def __call__(self, t, z):
         
-        """
-        Arguments:
-            times: The times of the observations for the input path X, e.g. as passed as an argument to
-                `controldiffeq.natural_cubic_spline_coeffs`.
-            coeffs: The coefficients describing the input path X, e.g. as returned by
-                `controldiffeq.natural_cubic_spline_coeffs`.
-            final_index: Each batch element may have a different final time. This defines the index within the tensor
-                `times` of where the final time for each batch element is.
-            z0: See the 'initial' argument to __init__.
-            stream: Whether to return the result of the Neural CDE model at all times (True), or just the final time
-                (False). Defaults to just the final time. The `final_index` argument is ignored if stream is True.
-            **kwargs: Will be passed to cdeint.
-
-        Returns:
-            If stream is False, then this will return the terminal time z_T. If stream is True, then this will return
-            all intermediate times z_t, for those t for which there was data.
-        """
         control_gradient = self.dX_dt(t)
-        
-        
         vector_field = self.func(z)
         control_gradient = control_gradient.type(vector_field.type())
-        
         out = (vector_field @ control_gradient.unsqueeze(-1)).squeeze(-1)
-        
-        
+
         if self.h_prime_list.shape[0]>0:
             self.h_prime_list = torch.cat([self.h_prime_list,out.unsqueeze(0)],dim=0)
             
         else:
-            
             self.h_prime_list = out.unsqueeze(0)
         
         if self.final_time - t <= 0.1: 
-            
             np.save(self.file, self.h_prime_list.cpu().detach().numpy())
         
         return out
-class Hardsigmoid(torch.nn.Module):
-
-    def __init__(self):
-        super(Hardsigmoid, self).__init__()
-        self.act = torch.nn.Hardtanh()
-
-    def forward(self, x):
-        return (self.act(x) + 1.0) / 2.0
-class RoundFunctionST(torch.autograd.Function):
-    """Rounds a tensor whose values are in [0, 1] to a tensor with values in {0, 1}"""
-
-    @staticmethod
-    def forward(ctx, input):
-
-        return torch.round(input)
-
-    @staticmethod
-    def backward(ctx, grad_output):
-
-        return grad_output
-
-RoundST = RoundFunctionST.apply
 
 class AttentiveVectorField(torch.nn.Module):
     
     def __init__(self,dX_dt,func_g,X_s,h_prime,time,attention):
 
-        """Defines a controlled vector field.
+        """
+        Defines a controlled vector field with Attention
 
         Arguments:
             dX_dt: As cdeint.
-            func: As cdeint.
+            func_g: As cdeint.
+            X_s:
+            h_prime:
+            time:
+            attention:
         """
         super(AttentiveVectorField, self).__init__()
         if not isinstance(func_g, torch.nn.Module):
