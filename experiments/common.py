@@ -156,7 +156,7 @@ def _evaluate_metrics_forecasting(
         total_accuracy = 0
         total_confusion = torch.zeros(
             num_classes, num_classes
-        ).numpy()  # occurs all too often
+        ).numpy()  
         total_dataset_size = 0
         total_loss = 0
         true_y_cpus = []
@@ -182,7 +182,7 @@ def _evaluate_metrics_forecasting(
 
             total_loss += loss_fn(pred_y, true_y.float()) * batch_size
 
-        total_loss /= total_dataset_size  # assume 'mean' reduction in the loss function
+        total_loss /= total_dataset_size  
         total_accuracy /= total_dataset_size
         metrics = _AttrDict(dataset_size=total_dataset_size, loss=total_loss.item())
 
@@ -275,7 +275,7 @@ def _train_loop_forecasting(
                         times, train_coeffs, lengths, slope, stream=True, **kwargs
                     )
 
-                # import pdb ; pdb.set_trace()
+                
                 loss = loss_fn(pred_y, train_y.float())
                 loss.backward()
                 optimizer.step()
@@ -322,26 +322,19 @@ def _train_loop_forecasting(
             if train_metrics.loss * 1.0001 < best_train_loss:
                 best_train_loss = train_metrics.loss
                 best_train_loss_epoch = epoch
-                del best_model  # so that we don't have three copies of a model simultaneously
+                del best_model  
                 best_model = copy.deepcopy(model)
 
             if val_metrics.loss * 1.0001 < best_val_loss:
                 best_val_loss = val_metrics.loss
                 best_val_loss_epoch = epoch
-                ### TODO : [CHANGE ME ]
+                
                 del best_model
                 print(
                     f"\n [Epoch : {epoch}] best validation : {val_metrics.loss} Test Loss : {test_metrics.loss} "
                 )
                 best_model = copy.deepcopy(model)
-                # ckpt_file = PATH+"at"+str(epoch)+"_model_loss"+str(test_metrics.loss)+".pth"
-                # torch.save({
-                #     'epoch': epoch,
-                #     'model_state_dict': best_model.state_dict(),
-                #     'optimizer_state_dict': optimizer.state_dict(),
-                #     'loss': loss
-                #     }, ckpt_file)
-                # so that we don't have three copies of a model simultaneously
+                
 
             tqdm_range.write(
                 "Epoch: {}  Train MSE loss: {:.3}  "
@@ -467,7 +460,7 @@ def _train_loop(
 
                 
                 pred_y = model(times, train_coeffs, lengths, slope, **kwargs)
-                # import pdb ; pdb.set_trace()
+                
                 if len(pred_y.shape) == 2:
                     pred_y = pred_y.squeeze(-1)
                 loss = loss_fn(pred_y, train_y)
@@ -568,7 +561,7 @@ def _train_loop(
 
                 if val_metrics.accuracy > best_val_accuracy:
                     best_val_accuracy = val_metrics.accuracy
-                    del best_model  # so that we don't have three copies of a model simultaneously
+                    del best_model  
                     best_model = copy.deepcopy(model)
                     print(
                         f"\n[ Epoch {epoch} ] Test Loss : {test_metrics.loss},  Test accuracy: {test_metrics.accuracy}"
@@ -614,14 +607,7 @@ def _train_loop(
                         "".format(plateau_terminate)
                     )
                     breaking = True
-            # if epoch > best_train_loss_epoch + plateau_terminate:
-            #     tqdm_range.write('Breaking because of no improvement in training loss for {} epochs.'
-            #                      ''.format(plateau_terminate))
-            #     breaking = True
-            # if epoch > best_train_accuracy_epoch + plateau_terminate:
-            #     tqdm_range.write('Breaking because of no improvement in training accuracy for {} epochs.'
-            #                      ''.format(plateau_terminate))
-            #     breaking = True
+            
 
     for parameter, best_parameter in zip(model.parameters(), best_model.parameters()):
         parameter.data = best_parameter.data
@@ -684,10 +670,10 @@ def main(
         baseline_memory = torch.cuda.memory_allocated(device)
     else:
         baseline_memory = None
-    # model, regularise_parameters = make_model()
+    
     model, regularise_parameters, regularise_parameters2 = make_model()
     if num_classes == 2:
-        # model = _SqueezeEnd(model)
+        
         loss_fn = torch.nn.BCEWithLogitsLoss(pos_weight=pos_weight)
     else:
         loss_fn = torch.nn.functional.cross_entropy
@@ -778,7 +764,6 @@ def main_forecasting(
 
     loss_fn = torch.nn.functional.mse_loss
     loss_fn = _add_weight_regularisation(loss_fn, regularise_parameters)
-    # loss_fn = _add_weight_regularisation2(loss_fn, regularise_parameters,regularise_parameters2)
     model.to(device)
 
     if model_name in BASELINE_MODELS:
@@ -797,7 +782,7 @@ def main_forecasting(
         )
 
     optimizer = torch.optim.Adam(model.parameters(), lr=lr, weight_decay=1e-4)
-    # optimizer = torch.optim.Adam(model.parameters(), lr=lr)
+    
     history, epoch = _train_loop_forecasting(
         model_name,
         train_dataloader,
