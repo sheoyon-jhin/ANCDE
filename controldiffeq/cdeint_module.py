@@ -22,7 +22,23 @@ class VectorField(torch.nn.Module):
         self.func = func
         self.sigmoid = torch.nn.Sigmoid()
     def __call__(self, t, z):
-        
+        """
+        Arguments:
+            times: The times of the observations for the input path X, e.g. as passed as an argument to
+                `controldiffeq.natural_cubic_spline_coeffs`.
+            coeffs: The coefficients describing the input path X, e.g. as returned by
+                `controldiffeq.natural_cubic_spline_coeffs`.
+            final_index: Each batch element may have a different final time. This defines the index within the tensor
+                `times` of where the final time for each batch element is.
+            z0: See the 'initial' argument to __init__.
+            stream: Whether to return the result of the Neural CDE model at all times (True), or just the final time
+                (False). Defaults to just the final time. The `final_index` argument is ignored if stream is True.
+            **kwargs: Will be passed to cdeint.
+
+        Returns:
+            If stream is False, then this will return the terminal time z_T. If stream is True, then this will return
+            all intermediate times z_t, for those t for which there was data.
+        """
         control_gradient = self.dX_dt(t).float() #1024,69
         
         
@@ -35,7 +51,12 @@ class VectorField(torch.nn.Module):
 
 class VectorField_stack(torch.nn.Module):
     def __init__(self, dX_dt, func,final_time,file):
-        
+        """Defines a controlled vector field.
+
+        Arguments:
+            dX_dt: As cdeint.
+            func: As cdeint.
+        """
         super(VectorField_stack, self).__init__()
         if not isinstance(func, torch.nn.Module):
             raise ValueError("func must be a torch.nn.Module.")
@@ -47,7 +68,23 @@ class VectorField_stack(torch.nn.Module):
         self.file = file
     def __call__(self, t, z):
         
-        
+        """
+        Arguments:
+            times: The times of the observations for the input path X, e.g. as passed as an argument to
+                `controldiffeq.natural_cubic_spline_coeffs`.
+            coeffs: The coefficients describing the input path X, e.g. as returned by
+                `controldiffeq.natural_cubic_spline_coeffs`.
+            final_index: Each batch element may have a different final time. This defines the index within the tensor
+                `times` of where the final time for each batch element is.
+            z0: See the 'initial' argument to __init__.
+            stream: Whether to return the result of the Neural CDE model at all times (True), or just the final time
+                (False). Defaults to just the final time. The `final_index` argument is ignored if stream is True.
+            **kwargs: Will be passed to cdeint.
+
+        Returns:
+            If stream is False, then this will return the terminal time z_T. If stream is True, then this will return
+            all intermediate times z_t, for those t for which there was data.
+        """
         control_gradient = self.dX_dt(t)
         
         
@@ -95,6 +132,13 @@ RoundST = RoundFunctionST.apply
 class AttentiveVectorField(torch.nn.Module):
     
     def __init__(self,dX_dt,func_g,X_s,h_prime,time,attention):
+
+        """Defines a controlled vector field.
+
+        Arguments:
+            dX_dt: As cdeint.
+            func: As cdeint.
+        """
         super(AttentiveVectorField, self).__init__()
         if not isinstance(func_g, torch.nn.Module):
             raise ValueError("func must be a torch.nn.Module.")
@@ -131,7 +175,7 @@ class AttentiveVectorField(torch.nn.Module):
         
         out = (Y@dY_dt.unsqueeze(-1)).squeeze(-1)
         self.t_idx +=1
-        # import pdb ; pdb.set_trace()
+        
         if self.t_idx ==self.h_prime.shape[0]-1:
             self.t_idx = 0 
         return out
@@ -157,10 +201,8 @@ def cdeint_final(dX_dt,attention,zz0,X_s, func_f,func_g, t,timewise,adjoint=True
     
     vector_field = func_g(y0) 
     odeint = torchdiffeq.odeint_adjoint if adjoint else torchdiffeq.odeint
-    # vector_field = AttentiveTimeVectorField(dX_dt=dX_dt, func_f=func_f,func_g =func_g,X_s=X_s,linear_f=linear_f,atten_in=atten_in)
     vector_field = AttentiveVectorField(dX_dt=dX_dt,func_f=func_f, func_g =func_g,X_s=X_s,time=timewise,attention = attention)
 
-    # import pdb ; pdb.set_trace()
     out = odeint(func=vector_field.cuda(), y0=zz0, t=t, **kwargs)
     return out
 
@@ -170,7 +212,7 @@ def ancde_bottom(dX_dt, z0, func, t,file, adjoint=True, **kwargs):
     
     if 'method' not in kwargs:
         kwargs['method'] = 'rk4'
-    # import pdb; pdb.set_trace()        
+          
     if kwargs['method'] == 'sym12async':
         if 'atol' not in kwargs:
             kwargs['atol'] = 1e-2
@@ -224,7 +266,7 @@ def ancde_bottom(dX_dt, z0, func, t,file, adjoint=True, **kwargs):
 
     vector_field = VectorField_stack(dX_dt=dX_dt, func=func,final_time=t[-1],file=file)
     if kwargs['method'] == 'sym12async':
-        #import pdb ; pdb.set_trace()
+        
         for i in range(len(t)-1):
             kwargs["t0"]  = t[i]
             kwargs["t1"]  = t[i+1]
