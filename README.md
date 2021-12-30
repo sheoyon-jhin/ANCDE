@@ -11,11 +11,12 @@
 <p align="center">
   <img align="middle" src="./imgs/ANCDE_flow.png" alt="ANCDE_model_structure in detail"/> 
 </p>
+<!-- <p align="center">
+  
+</p> -->
 <p align="center">
-  <img align="middle" src="./imgs/sepsis.png" alt="PhysioNet Sepsis attention visualization"/> 
-</p>
-<p align="center">
-  <img align="middle" src="./imgs/stock.png" alt="Google Stock attention visualization" width="100"/> 
+  <img align="left" src="./imgs/stock.png" alt="Google Stock attention visualization" width="400"/> 
+  <img align="right" src="./imgs/sepsis.png" alt="PhysioNet Sepsis attention visualization" width="400"/> 
 </p>
 
 ### create conda environments
