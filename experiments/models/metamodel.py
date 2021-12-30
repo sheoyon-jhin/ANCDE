@@ -339,7 +339,7 @@ class ANCDE(torch.nn.Module):
                 attention = self.binarizer(attention)
             else :
                 
-                attention = sigmoid(attention) # sigmoid -> 다른 것 
+                attention = sigmoid(attention) 
                 attention = self.binarizer(attention)
         
         x0 = cubic_spline.evaluate(times[0])

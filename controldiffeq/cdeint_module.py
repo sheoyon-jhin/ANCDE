@@ -24,10 +24,11 @@ class VectorField(torch.nn.Module):
         self.sigmoid = torch.nn.Sigmoid()
     def __call__(self, t, z):
         
-        control_gradient = self.dX_dt(t).float() #1024,69
-        vector_field = self.func(z) # 1024,49,69
-        out = (vector_field @ control_gradient.unsqueeze(-1)).squeeze(-1) 
-         
+        control_gradient = self.dX_dt(t).float() 
+        vector_field = self.func(z) 
+        #out is equation (6) in ANCDE paper 
+        out = (vector_field @ control_gradient.unsqueeze(-1)).squeeze(-1) #f(h(t);theta_f)*dXt/dt 
+        
         return out
 
 class VectorField_stack(torch.nn.Module):
@@ -102,7 +103,7 @@ class AttentiveVectorField(torch.nn.Module):
     def __call__(self, t, z):
         Y = self.func_g(z) 
         
-        control_gradient = self.dX_dt(t).float() # 32,4 # 32,12
+        control_gradient = self.dX_dt(t).float() # dXt/dt
         if self.timewise:
             a_t = self.attention[int(np.floor(t.item()))-1,:,:]
         else:
@@ -110,16 +111,21 @@ class AttentiveVectorField(torch.nn.Module):
         
         Xt = self.dX_dt(t)
         dY_dt_1 = torch.mul(control_gradient,a_t)
-        dY_dt_2_0 = torch.mul(torch.mul(a_t,(1-a_t)),Xt)
-        
+        # dY_dt_1 is dXt/dt * a(t) in equation 15,16
+        dY_dt_2_0 = torch.mul(torch.mul(a_t,(1-a_t)),Xt) 
+        # dY_dt_2_0 is X(t) * a(t) *(1-a(t)) in equation 15,16
+
         if self.timewise:
+            # equation 15
             dY_dt_2 = torch.mul(dY_dt_2_0,self.h_prime.to(dY_dt_2_0.device))
+            # self.h_prime is dFC/dt
         else:
+            # equation 16
             dY_dt_2 = torch.mul(dY_dt_2_0,torch.Tensor(self.h_prime[self.t_idx,:,:]).to(dY_dt_2_0.device))
-        dY_dt = (dY_dt_1+dY_dt_2).float()
-         
-        
-        out = (Y@dY_dt.unsqueeze(-1)).squeeze(-1)
+            # self.h_prime[self.t_idx] is dht/dt 
+        dY_dt = (dY_dt_1+dY_dt_2).float()  # equation 15,16 
+       
+        out = (Y@dY_dt.unsqueeze(-1)).squeeze(-1) # equation 14 g(z(t);theta_g) * dYt/dt
         self.t_idx +=1
         
         if self.t_idx ==self.h_prime.shape[0]-1:
