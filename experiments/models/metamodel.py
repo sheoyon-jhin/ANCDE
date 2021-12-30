@@ -194,10 +194,15 @@ class ANCDE(torch.nn.Module):
         """
         Arguments:
             func: As cdeint.
-            func_g: 
+            func_g: As cdeint
             input_channels: How many channels there are in the input.
             hidden_channels: The number of hidden channels, i.e. the size of z_t.
             output_channels: How many channels to perform a linear map to at the end.
+            attention_channel:
+            slope_check:
+            soft:
+            timewise:
+            file: 
             initial: Whether to automatically construct the initial value from data (in which case z0 must not be passed
                 during forward()), or to use the one supplied during forward (in which case z0 must be passed during
                 forward()).
@@ -513,10 +518,16 @@ class ANCDE_forecasting(torch.nn.Module):
         """
         Arguments:
             func: As cdeint.
-            func_g : 
+            func_g: As cdeint
             input_channels: How many channels there are in the input.
+            output_time: output sequence length
             hidden_channels: The number of hidden channels, i.e. the size of z_t.
             output_channels: How many channels to perform a linear map to at the end.
+            attention_channel:
+            slope_check:
+            soft:
+            timewise:
+            file: 
             initial: Whether to automatically construct the initial value from data (in which case z0 must not be passed
                 during forward()), or to use the one supplied during forward (in which case z0 must be passed during
                 forward()).
