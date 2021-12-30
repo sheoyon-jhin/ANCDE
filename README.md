@@ -22,6 +22,7 @@
   The soft attention visualization in physioNet Sepsis. Blue means strong attention and white means weak attention. Note that the bottom NCDE gives strong attention when there are non-trivial changes on the curves.
 
 </p>
+<br><br><br>
 <p align="center">
   <img align="left" src="./imgs/stock.png" alt="Google Stock attention visualization" width="400"/> 
   The soft attention visualization in Google Stock. Blue means strong attention and white means weak attention. Note that the open price has weak attention always. This is because it shows high correlations to other values. Our attention model strategically ignores the open price.
