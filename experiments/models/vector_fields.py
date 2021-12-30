@@ -34,12 +34,10 @@ class FinalTanh_f(torch.nn.Module):
         self.num_hidden_layers = num_hidden_layers
 
         self.linear_in = torch.nn.Linear(hidden_atten_channels, hidden_hidden_atten_channels)
-        # self.linear_test = torch.nn.Linear(hidden_hidden_atten_channels,hidden_hidden_atten_channels)
         self.linears = torch.nn.ModuleList(torch.nn.Linear(hidden_hidden_atten_channels, hidden_hidden_atten_channels)
                                            for _ in range(num_hidden_layers - 1))
         self.linear_out = torch.nn.Linear(hidden_hidden_atten_channels, input_channels * hidden_hidden_atten_channels)
-        # self.linear_out = torch.nn.Linear(hidden_hidden_channels,input_channels*input_channels)
-
+        
     def extra_repr(self):
         return "input_channels: {}, hidden_channels: {}, hidden_hidden_channels: {}, num_hidden_layers: {}" \
                "".format(self.input_channels, self.hidden_channels, self.hidden_hidden_channels, self.num_hidden_layers)
@@ -48,13 +46,11 @@ class FinalTanh_f(torch.nn.Module):
         
         z = self.linear_in(z)
         z = z.relu()
-        # z= self.linear_test(z)
-        # z= z.relu()
+        
         for linear in self.linears:
             z = linear(z)
             z = z.relu()
         z = self.linear_out(z).view(*z.shape[:-1], self.hidden_hidden_channels, self.input_channels)
-        # z = self.linear_out(z).view(*z.shape[:-1],self.input_channels,self.input_channels)
         
         z= z.tanh()
         return z
@@ -71,11 +67,8 @@ class FinalTanh_ff(torch.nn.Module):
         self.linear_in = torch.nn.Linear(input_channels, hidden_hidden_atten_channels)
         self.linear_test = torch.nn.Linear(hidden_hidden_atten_channels,hidden_hidden_atten_channels)
         self.linear_test2 = torch.nn.Linear(hidden_hidden_atten_channels,hidden_hidden_atten_channels)
-        # self.linears = torch.nn.ModuleList(torch.nn.Linear(hidden_hidden_atten_channels, hidden_hidden_atten_channels)
-        #                                    for _ in range(num_hidden_layers - 1))
         self.linear_out = torch.nn.Linear(hidden_hidden_atten_channels, input_channels * input_channels)
-        # self.linear_out = torch.nn.Linear(hidden_hidden_channels,input_channels*input_channels)
-
+        
     def extra_repr(self):
         return "input_channels: {}, hidden_channels: {}, hidden_hidden_channels: {}, num_hidden_layers: {}" \
                "".format(self.input_channels, self.hidden_channels, self.hidden_hidden_channels, self.num_hidden_layers)
@@ -88,118 +81,12 @@ class FinalTanh_ff(torch.nn.Module):
         z= z.relu()
         z = self.linear_test2(z)
         z=z.relu()
-        # for linear in self.linears:
-        #     z = linear(z)
-        #     z = z.relu()
         z = self.linear_out(z).view(*z.shape[:-1], self.input_channels, self.input_channels)
-        # z = self.linear_out(z).view(*z.shape[:-1],self.input_channels,self.input_channels)
         
         z= z.tanh()
         return z
 
 
-# class FinalTanh_ff2(torch.nn.Module):
-#     ## CREATE ATTENTION 
-#     def __init__(self, input_channels, hidden_atten_channels, hidden_hidden_atten_channels, num_hidden_layers):
-#         super(FinalTanh_ff2, self).__init__()
-#         self.input_channels = input_channels
-#         self.hidden_channels = hidden_atten_channels
-#         self.hidden_hidden_channels = hidden_hidden_atten_channels
-#         self.num_hidden_layers = num_hidden_layers
-
-#         self.linear_in = torch.nn.Linear(input_channels, hidden_atten_channels)
-        
-#         self.linears = torch.nn.ModuleList(torch.nn.Linear(hidden_atten_channels, hidden_atten_channels)
-#                                            for _ in range(num_hidden_layers - 1))
-#         self.linear_out = torch.nn.Linear(hidden_atten_channels, input_channels * input_channels)
-        
-
-#     def extra_repr(self):
-#         return "input_channels: {}, hidden_channels: {}, hidden_hidden_channels: {}, num_hidden_layers: {}" \
-#                "".format(self.input_channels, self.hidden_channels, self.hidden_hidden_channels, self.num_hidden_layers)
-
-#     def forward(self, z):
-        
-#         z = self.linear_in(z)
-#         z = z.relu()
-#         # z= self.linear_test(z)
-#         # z= z.relu()
-#         # z = self.linear_test2(z)
-#         # z=z.relu()
-#         for linear in self.linears:
-#             z = linear(z)
-#             z = z.relu()
-#         z = self.linear_out(z).view(*z.shape[:-1], self.input_channels, self.input_channels) 
-#         # z = self.linear_out(z).view(*z.shape[:-1],self.input_channels,self.input_channels)
-    
-#         z= z.tanh()
-#         return z
-
-# class FinalTanh_ff3(torch.nn.Module):
-#     ## CREATE ATTENTION 
-#     def __init__(self, input_channels, hidden_atten_channels, hidden_hidden_atten_channels, num_hidden_layers):
-#         super(FinalTanh_ff3, self).__init__()
-#         self.input_channels = input_channels
-#         self.hidden_channels = hidden_atten_channels
-#         self.hidden_hidden_channels = hidden_hidden_atten_channels
-#         self.num_hidden_layers = num_hidden_layers
-
-#         self.linear_in = torch.nn.Linear(input_channels, hidden_hidden_atten_channels)
-#         self.linear_test = torch.nn.Linear(hidden_hidden_atten_channels,hidden_hidden_atten_channels)
-#         self.linear_test2 = torch.nn.Linear(hidden_hidden_atten_channels,hidden_hidden_atten_channels)
-#         self.linears = torch.nn.ModuleList(torch.nn.Linear(hidden_hidden_atten_channels, hidden_hidden_atten_channels)
-#                                            for _ in range(num_hidden_layers - 1))
-#         self.linear_out = torch.nn.Linear(hidden_hidden_atten_channels, input_channels * input_channels)
-#         # self.linear_out = torch.nn.Linear(hidden_hidden_channels,input_channels*input_channels)
-
-#     def extra_repr(self):
-#         return "input_channels: {}, hidden_channels: {}, hidden_hidden_channels: {}, num_hidden_layers: {}" \
-#                "".format(self.input_channels, self.hidden_channels, self.hidden_hidden_channels, self.num_hidden_layers)
-
-#     def forward(self, z):
-        
-#         z = self.linear_in(z)
-#         z = z.relu()
-#         z= self.linear_test(z)
-#         z= z.relu()
-#         z = self.linear_test2(z)
-#         z=z.relu()
-#         for linear in self.linears:
-#             z = linear(z)
-#             z = z.relu()
-#         z = self.linear_out(z).view(*z.shape[:-1], self.input_channels, self.input_channels)
-#         # z = self.linear_out(z).view(*z.shape[:-1],self.input_channels,self.input_channels)
-        
-#         z= z.tanh()
-#         return z
-        
-# #4->10->16
-# class FinalTanh_ff4(torch.nn.Module):
-#     ## CREATE ATTENTION 
-#     def __init__(self, input_channels, hidden_atten_channels, hidden_hidden_atten_channels, num_hidden_layers):
-#         super(FinalTanh_ff4, self).__init__()
-#         self.input_channels = input_channels
-#         self.hidden_channels = hidden_atten_channels
-#         self.hidden_hidden_channels = hidden_hidden_atten_channels
-#         self.num_hidden_layers = num_hidden_layers
-
-#         self.linear_in = torch.nn.Linear(input_channels, hidden_hidden_atten_channels)
-#         self.linear_out = torch.nn.Linear(hidden_hidden_atten_channels, input_channels * input_channels)
-#         # self.linear_out = torch.nn.Linear(hidden_hidden_channels,input_channels*input_channels)
-
-#     def extra_repr(self):
-#         return "input_channels: {}, hidden_channels: {}, hidden_hidden_channels: {}, num_hidden_layers: {}" \
-#                "".format(self.input_channels, self.hidden_channels, self.hidden_hidden_channels, self.num_hidden_layers)
-
-#     def forward(self, z):
-        
-#         z = self.linear_in(z)
-#         z = z.relu()
-#         z = self.linear_out(z).view(*z.shape[:-1], self.input_channels, self.input_channels)
-        
-        
-#         z= z.tanh()
-#         return z
 
 class FinalTanh_f(torch.nn.Module):
     def __init__(self, input_channels, hidden_channels, hidden_hidden_channels, num_hidden_layers):
@@ -210,11 +97,7 @@ class FinalTanh_f(torch.nn.Module):
         self.hidden_hidden_channels = hidden_hidden_channels
         self.num_hidden_layers = num_hidden_layers
 
-        # self.linear_in = torch.nn.Linear(hidden_channels, hidden_hidden_channels) 
         self.linear_in = torch.nn.Linear(input_channels, input_channels*input_channels) # previous
-
-        # self.linear_out = torch.nn.Linear(hidden_hidden_channels, input_channels * input_channels) #32,32*4  -> # 32,32,4 
-        # self.linear_out = torch.nn.Linear(hidden_hidden_channels, hidden_channels * input_channels)
 
     def extra_repr(self):
         return "input_channels: {}, hidden_channels: {}, hidden_hidden_channels: {}, num_hidden_layers: {}" \
@@ -222,9 +105,6 @@ class FinalTanh_f(torch.nn.Module):
 
     def forward(self,z):
         
-        
-        
-        # z = self.linear_in(z)
         z = self.linear_in(z).view(*z.shape[:-1], self.input_channels, self.input_channels)
         z = z.relu()
         z = z.tanh()  
@@ -235,20 +115,17 @@ class FinalTanh_f(torch.nn.Module):
 class FinalTanh_g(torch.nn.Module):
     def __init__(self, input_channels, hidden_channels, hidden_hidden_channels, num_hidden_layers):
         super(FinalTanh_g, self).__init__()
-        # import pdb ; pdb.set_trace()
+        
         self.input_channels = input_channels
         self.hidden_channels = hidden_channels
         self.hidden_hidden_channels = hidden_hidden_channels
         self.num_hidden_layers = num_hidden_layers
 
         self.linear_in = torch.nn.Linear(hidden_channels, hidden_hidden_channels) # previous
-        # self.linear_in = torch.nn.Linear(input_channels, hidden_hidden_channels) 
-        
-        
         self.linears = torch.nn.ModuleList(torch.nn.Linear(hidden_hidden_channels, hidden_hidden_channels)
                                            for _ in range(num_hidden_layers - 1))
         self.linear_out = torch.nn.Linear(hidden_hidden_channels, hidden_channels * input_channels) #32,32*4  -> # 32,32,4 
-        # self.linear_out = torch.nn.Linear(hidden_hidden_channels, input_channels * input_channels)
+        
     def extra_repr(self):
         return "input_channels: {}, hidden_channels: {}, hidden_hidden_channels: {}, num_hidden_layers: {}" \
                "".format(self.input_channels, self.hidden_channels, self.hidden_hidden_channels, self.num_hidden_layers)
@@ -263,7 +140,6 @@ class FinalTanh_g(torch.nn.Module):
             z = linear(z)
             z = z.relu()
         z = self.linear_out(z).view(*z.shape[:-1], self.hidden_channels, self.input_channels)
-        # z = self.linear_out(z).view(*z.shape[:-1], self.input_channels, self.input_channels)
         
         z = z.tanh()  
         
@@ -273,20 +149,18 @@ class FinalTanh_g(torch.nn.Module):
 class FinalTanh_hide(torch.nn.Module):
     def __init__(self, input_channels, hidden_channels, hidden_hidden_channels, num_hidden_layers):
         super(FinalTanh_hide, self).__init__()
-        # import pdb ; pdb.set_trace()
         self.input_channels = input_channels
         self.hidden_channels = hidden_channels
         self.hidden_hidden_channels = hidden_hidden_channels
         self.num_hidden_layers = num_hidden_layers
 
         self.linear_in = torch.nn.Linear(hidden_channels, hidden_hidden_channels) # previous
-        # self.linear_in = torch.nn.Linear(input_channels, hidden_hidden_channels) 
         
         
         self.linears = torch.nn.ModuleList(torch.nn.Linear(hidden_hidden_channels, hidden_hidden_channels)
                                            for _ in range(num_hidden_layers - 1))
         self.linear_out = torch.nn.Linear(hidden_hidden_channels, hidden_channels * input_channels) #32,32*4  -> # 32,32,4 
-        # self.linear_out = torch.nn.Linear(hidden_hidden_channels, input_channels * input_channels)
+        
     def extra_repr(self):
         return "input_channels: {}, hidden_channels: {}, hidden_hidden_channels: {}, num_hidden_layers: {}" \
                "".format(self.input_channels, self.hidden_channels, self.hidden_hidden_channels, self.num_hidden_layers)
@@ -301,14 +175,13 @@ class FinalTanh_hide(torch.nn.Module):
             z = linear(z)
             z = z.relu()
         z = self.linear_out(z).view(*z.shape[:-1], self.hidden_channels, self.input_channels)
-        # z = self.linear_out(z).view(*z.shape[:-1], self.input_channels, self.input_channels)
         
         z = z.tanh()  
         
         return z
 
 
-#bottleneck
+
 class FinalTanh_ff6(torch.nn.Module):
     ## CREATE ATTENTION 
     def __init__(self,input_channels, hidden_atten_channels, hidden_hidden_atten_channels, num_hidden_layers):
@@ -324,8 +197,7 @@ class FinalTanh_ff6(torch.nn.Module):
         self.linears = torch.nn.ModuleList(torch.nn.Linear(hidden_atten_channels, hidden_atten_channels)
                                            for _ in range(num_hidden_layers - 1))
         self.linear_out = torch.nn.Linear(hidden_atten_channels, input_channels * input_channels)
-        # self.linear_out = torch.nn.Linear(hidden_hidden_channels,input_channels*input_channels)
-
+        
     def extra_repr(self):
         return "input_channels: {}, hidden_channels: {}, hidden_hidden_channels: {}, num_hidden_layers: {}" \
                "".format(self.input_channels, self.hidden_channels, self.hidden_hidden_channels, self.num_hidden_layers)
@@ -355,13 +227,10 @@ class FinalTanh_socar(torch.nn.Module):
         self.num_hidden_layers = num_hidden_layers
 
         self.linear_in = torch.nn.Linear(input_channels, hidden_hidden_atten_channels)
-        # self.linear_test = torch.nn.Linear(hidden_hidden_atten_channels, hidden_hidden_atten_channels)
-        # self.linear_test2 = torch.nn.Linear(hidden_hidden_atten_channels, hidden_hidden_atten_channels)
         self.linears = torch.nn.ModuleList(torch.nn.Linear(hidden_hidden_atten_channels, hidden_hidden_atten_channels)
                                            for _ in range(num_hidden_layers - 1))
         self.linear_out = torch.nn.Linear(hidden_hidden_atten_channels, input_channels * input_channels)
-        # self.linear_out = torch.nn.Linear(hidden_hidden_channels,input_channels*input_channels)
-
+        
     def extra_repr(self):
         return "input_channels: {}, hidden_channels: {}, hidden_hidden_channels: {}, num_hidden_layers: {}" \
                "".format(self.input_channels, self.hidden_channels, self.hidden_hidden_channels, self.num_hidden_layers)
@@ -370,16 +239,10 @@ class FinalTanh_socar(torch.nn.Module):
         
         z = self.linear_in(z)
         z = z.relu()
-        # z = self.linear_test(z)
-        
-        # z = z.relu()
-        # z = self.linear_test2(z)
-        # z = z.relu()
         for linear in self.linears:
             z = linear(z)
             z = z.relu()
         z = self.linear_out(z).view(*z.shape[:-1], self.input_channels, self.input_channels)
-        # z = self.linear_out(z).view(*z.shape[:-1],self.input_channels,self.input_channels)
         
         z= z.tanh()
         return z
@@ -387,7 +250,6 @@ class FinalTanh_socar(torch.nn.Module):
 class FinalTanh(torch.nn.Module):
     def __init__(self, input_channels, hidden_channels, hidden_hidden_channels, num_hidden_layers):
         super(FinalTanh, self).__init__()
-        # import pdb ; pdb.set_trace()
         self.input_channels = input_channels
         self.hidden_channels = hidden_channels
         self.hidden_hidden_channels = hidden_hidden_channels
