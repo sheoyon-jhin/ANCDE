@@ -26,8 +26,8 @@ python3 stock.py --seed 2021 --sequence 25 --model="ancde_forecasting" --h_chann
 ```bibtex
 @article{jhin2021attentive,
   title={Attentive Neural Controlled Differential Equations for Time-series Classification and Forecasting},
-  author={Jhin, Sheo Yon and Shin, Heejoo and Hong, Seoyoung and Park, Solhee and Park, Noseong},
-  journal={arXiv preprint arXiv:2109.01876},
+  author={Jhin, Sheo Yon and Shin, Heejoo and Hong, Seoyoung and Jo, Minju and Park, Solhee and Park, Noseong},
+  journal={ICDM},
   year={2021}
 }
 ```
