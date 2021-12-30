@@ -244,6 +244,7 @@ class ANCDE(torch.nn.Module):
                 `controldiffeq.natural_cubic_spline_coeffs`.
             final_index: Each batch element may have a different final time. This defines the index within the tensor
                 `times` of where the final time for each batch element is.
+            slope: temperature variable 
             z0: See the 'initial' argument to __init__.
             stream: Whether to return the result of the Neural CDE model at all times (True), or just the final time
                 (False). Defaults to just the final time. The `final_index` argument is ignored if stream is True.
@@ -523,11 +524,11 @@ class ANCDE_forecasting(torch.nn.Module):
             output_time: output sequence length
             hidden_channels: The number of hidden channels, i.e. the size of z_t.
             output_channels: How many channels to perform a linear map to at the end.
-            attention_channel:
-            slope_check:
-            soft:
-            timewise:
-            file: 
+            attention_channel: The number of hidden channels used to create attention
+            slope_check: using straight-through-estimator(STE) or not 
+            soft: soft attention or not (True/False)
+            timewise: timewise attention or elementwise attention
+            file: path, saving dht/dt(h_prime)
             initial: Whether to automatically construct the initial value from data (in which case z0 must not be passed
                 during forward()), or to use the one supplied during forward (in which case z0 must be passed during
                 forward()).
@@ -561,7 +562,24 @@ class ANCDE_forecasting(torch.nn.Module):
                "".format(self.input_channels, self.hidden_channels, self.output_channels, self.initial)
 
     def forward(self, times, coeffs, final_index,slope, z0=None, stream=False, **kwargs):
-        
+        """
+        Arguments:
+            times: The times of the observations for the input path X, e.g. as passed as an argument to
+                `controldiffeq.natural_cubic_spline_coeffs`.
+            coeffs: The coefficients describing the input path X, e.g. as returned by
+                `controldiffeq.natural_cubic_spline_coeffs`.
+            final_index: Each batch element may have a different final time. This defines the index within the tensor
+                `times` of where the final time for each batch element is.
+            slope: temperature variable 
+            z0: See the 'initial' argument to __init__.
+            stream: Whether to return the result of the Neural CDE model at all times (True), or just the final time
+                (False). Defaults to just the final time. The `final_index` argument is ignored if stream is True.
+            **kwargs: Will be passed to cdeint.
+
+        Returns:
+            If stream is False, then this will return the terminal time z_T. If stream is True, then this will return
+            all intermediate times z_t, for those t for which there was data.
+        """
 
         
         coeff, _, _, _ = coeffs
