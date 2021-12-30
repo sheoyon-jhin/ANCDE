@@ -34,7 +34,6 @@ python3 stock.py --seed 2021 --sequence 25 --model="ancde_forecasting" --h_chann
 ### Run shell file (ex PhysioNet Sepsis dataset)
 ```
 sh sepsis.sh 
-
 ```
 ### Run shell file, background  (ex PhysioNet Sepsis dataset)
 ```
