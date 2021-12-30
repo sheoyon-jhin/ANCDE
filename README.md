@@ -23,7 +23,7 @@
 
 </p>
 <p align="center">
-  <img align="right" src="./imgs/stock.png" alt="Google Stock attention visualization" width="400"/> 
+  <img align="left" src="./imgs/stock.png" alt="Google Stock attention visualization" width="400"/> 
   The soft attention visualization in Google Stock. Blue means strong attention and white means weak attention. Note that the open price has weak attention always. This is because it shows high correlations to other values. Our attention model strategically ignores the open price.
 </p>
 
