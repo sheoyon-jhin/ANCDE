@@ -3,19 +3,19 @@
     [<a href="https://arxiv.org/abs/2109.01876">arXiv</a>] </h1>
 
 <p align="center">
-  <img align="middle" src="./imgs/Neuralcde.png" alt="NeuralCDE" width="500" height="350" /> 
+  <img align="middle" src="./imgs/Neuralcde.png" alt="NeuralCDE" width="1000" height="350" /> 
 </p>
 <p align="center">
-  <img align="middle" src="./imgs/AttentiveNeuralCDE.png" alt="ANCDE" width="500" height="350" /> 
+  <img align="middle" src="./imgs/AttentiveNeuralCDE.png" alt="ANCDE" width="800" height="350" /> 
 </p>
 <p align="center">
-  <img align="middle" src="./imgs/ANCDE_flow.png" alt="ANCDE_model_structure in detail" width="500" height="350" /> 
+  <img align="middle" src="./imgs/ANCDE_flow.png" alt="ANCDE_model_structure in detail" width="800" height="350" /> 
 </p>
 <p align="center">
-  <img align="middle" src="./imgs/sepsis.png" alt="PhysioNet Sepsis attention visualization" width="500" height="350" /> 
+  <img align="middle" src="./imgs/sepsis.png" alt="PhysioNet Sepsis attention visualization" width="1000" height="350" /> 
 </p>
 <p align="center">
-  <img align="middle" src="./imgs/stock.png" alt="Google Stock attention visualization" width="500" height="350" /> 
+  <img align="middle" src="./imgs/stock.png" alt="Google Stock attention visualization" width="1000" height="350" /> 
 </p>
 
 ### create conda environments
