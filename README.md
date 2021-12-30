@@ -3,9 +3,12 @@
     [<a href="https://arxiv.org/abs/2109.01876">arXiv</a>] </h1>
 
 <p align="center">
+  The overall architecture of NCDE
   <img align="middle" src="./imgs/Neuralcde.png" alt="NeuralCDE"/> 
 </p>
+
 <p align="center">
+  our proposed attentive NCDE In our method, the bottom NCDE produces attention values and the top NCDE produces the last hidden vector. 
   <img align="middle" src="./imgs/AttentiveNeuralCDE.png" alt="ANCDE" /> 
 </p>
 <p align="center">
