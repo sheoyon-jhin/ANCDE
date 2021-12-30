@@ -3,7 +3,7 @@
     [<a href="https://arxiv.org/abs/2109.01876">arXiv</a>] </h1>
 
 <p align="center">
-  <img align="middle" src="./imgs/Neuralcde.png" alt="NeuralCDE" width="1000" height="350" /> 
+  <img align="middle" src="./imgs/Neuralcde.png" alt="NeuralCDE"/> 
 </p>
 <p align="center">
   <img align="middle" src="./imgs/AttentiveNeuralCDE.png" alt="ANCDE" width="800" height="350" /> 
