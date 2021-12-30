@@ -15,7 +15,7 @@
   <img align="middle" src="./imgs/sepsis.png" alt="PhysioNet Sepsis attention visualization"/> 
 </p>
 <p align="center">
-  <img align="middle" src="./imgs/stock.png" alt="Google Stock attention visualization"/> 
+  <img align="middle" src="./imgs/stock.png" alt="Google Stock attention visualization" width="100"/> 
 </p>
 
 ### create conda environments
