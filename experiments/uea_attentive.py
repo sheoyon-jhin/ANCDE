@@ -35,9 +35,9 @@ def main(
     dry_run=False,
     c1=args.c1,
     c2=args.c2,
-    rtol = args.rtol,
-    atol = args.atol,
-    **kwargs
+    rtol=args.rtol,
+    atol=args.atol,
+    **kwargs,
 ):
 
     np.random.seed(manual_seed)
@@ -50,13 +50,13 @@ def main(
 
     batch_size = 32
     lr = lr * (batch_size / 32)
-    
+
     PATH = os.path.dirname(os.path.abspath(__file__))
 
     # Need the intensity data to know how long to evolve for in between observations, but the model doesn't otherwise
     # use it because of use_intensity=False below.
     intensity_data = True if model_name in ("odernn", "dt", "decay") else False
-    # import pdb;pdb.set_trace()
+
     (
         times,
         train_dataloader,
@@ -76,8 +76,8 @@ def main(
         output_channels = 1
     else:
         output_channels = num_classes
-    experiment_id = int(SystemRandom().random()*100000) 
-    file = PATH+'/'+dataset_name+'_h_prime/'+f'{experiment_id}.npy'    
+    experiment_id = int(SystemRandom().random() * 100000)
+    file = PATH + "/" + dataset_name + "_h_prime/" + f"{experiment_id}.npy"
     if model_name in BASELINE_MODELS:
         make_model = common_org.make_model(
             model_name,
@@ -107,14 +107,13 @@ def main(
             soft=soft,
             timewise=timewise,
             initial=True,
-            
         )
 
     if dry_run:
         name = None
     else:
         name = dataset_name + str(int(missing_rate * 100))
-    
+
     experiments = name + str(manual_seed)
     if model_name in BASELINE_MODELS:
         return common_org.main(
@@ -132,7 +131,7 @@ def main(
             step_mode=False,
         )
     # attentive models
-    
+
     return common.main(
         experiments,
         model_name,
@@ -151,7 +150,6 @@ def main(
         step_mode=step_mode,
         c1=args.c1,
         c2=args.c2,
-        
     )
 
 
@@ -187,7 +185,7 @@ def run_all(
                 missing_rate,
                 device,
                 model_name=model_name,
-                **model_kwargs[model_name]
+                **model_kwargs[model_name],
             )
 
 

@@ -37,14 +37,14 @@ def main(
     sequence=args.sequence,
     step_mode=args.step_mode,
     dry_run=False,
-    **kwargs
+    **kwargs,
 ):
 
     batch_size = 200
     lr = lr * (batch_size / 32)
     PATH = os.path.dirname(os.path.abspath(__file__))
-    data_path = PATH+"/datasets/stock_data.csv"
-    
+    data_path = PATH + "/datasets/stock_data.csv"
+
     # input_channels = data[0].shape[1] - 1
     np.random.seed(manual_seed)
     random.seed(manual_seed)
@@ -77,8 +77,8 @@ def main(
     # else:
     #     output_channels = num_classes
     print(input_channels)
-    experiment_id = int(SystemRandom().random()*100000) 
-    file = PATH+'/'+'Google_h_prime/'+f'{experiment_id}.npy'    
+    experiment_id = int(SystemRandom().random() * 100000)
+    file = PATH + "/" + "Google_h_prime/" + f"{experiment_id}.npy"
     make_model = common.make_model(
         model_name,
         input_channels,
@@ -92,11 +92,10 @@ def main(
         slope_check=slope_check,
         soft=soft,
         timewise=timewise,
-        
         rtol=args.rtol,
         atol=args.atol,
         file=file,
-        initial=True
+        initial=True,
     )
 
     if dry_run:
@@ -156,7 +155,7 @@ def run_all(
                 missing_rate,
                 device,
                 model_name=model_name,
-                **model_kwargs[model_name]
+                **model_kwargs[model_name],
             )
 
 

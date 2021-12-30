@@ -36,7 +36,7 @@ def main(
     device="cuda",
     max_epochs=300,
     pos_weight=10,
-    *,  
+    *,
     model_name=args.model,
     hidden_channels=args.h_channels,
     hidden_hidden_channels=args.hh_channels,
@@ -51,13 +51,13 @@ def main(
     dry_run=False,
     c1=args.c1,
     c2=args.c2,
-    **kwargs
-):  
+    **kwargs,
+):
 
     batch_size = 1024
     lr = lr * (batch_size / 32)
     PATH = os.path.dirname(os.path.abspath(__file__))
-    
+
     np.random.seed(manual_seed)
     random.seed(manual_seed)
     torch.manual_seed(manual_seed)
@@ -74,9 +74,9 @@ def main(
     )
 
     input_channels = 1 + (1 + time_intensity) * 34
-    experiment_id = int(SystemRandom().random()*100000) 
-    file = PATH+'/'+'Sepsis_h_prime/'+f'{experiment_id}.npy'    
-    
+    experiment_id = int(SystemRandom().random() * 100000)
+    file = PATH + "/" + "Sepsis_h_prime/" + f"{experiment_id}.npy"
+
     make_model = common.make_model(
         model_name,
         input_channels,
@@ -92,7 +92,7 @@ def main(
         timewise=timewise,
         rtol=args.rtol,
         atol=args.atol,
-        file = file,
+        file=file,
         initial=False,
     )
 
@@ -113,7 +113,7 @@ def main(
         name = "sepsis" + intensity_str
     num_classes = 2
     experiments = "sepsis" + str(manual_seed)
-    
+
     return common.main(
         experiments,
         model_name,
@@ -160,4 +160,3 @@ def run_all(intensity, device, model_names=("ncde", "odernn", "dt", "decay", "gr
 
 if __name__ == "__main__":
     main()
-    
