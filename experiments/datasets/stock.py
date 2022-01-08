@@ -40,8 +40,8 @@ def _process_data(data_path,sequence, missing_rate, intensity):
     # norm_data = np.concatenate((norm_data),axis=1)#맨 뒤에 관측시간에 대한 정보 저장
 
     seq_data = []
-    # import pdb ;pdb.set_trace()
-    for i in range(len(norm_data) - sequence + 1): # 1은 한칸씩 밀면서 보는 것 ! 즉 시간 0 ~ 24 값 보고 그다음 텀에서 시간 1 ~ 25 이렇게 봄 
+    import pdb ;pdb.set_trace()
+    for i in range(len(norm_data) - sequence + 1): 
         # 총 3662개의 sequence가 들어간다. 
         x = norm_data[i : i + sequence]
         seq_data.append(x)
@@ -59,18 +59,7 @@ def _process_data(data_path,sequence, missing_rate, intensity):
             
             this0 = torch.reshape(torch.tensor(samples[j]),[1,torch.tensor(samples[j]).shape[0],torch.tensor(samples[j]).shape[1]])
             this = torch.cat([this,this0])
-            
 
-    
-
-    # data = time_dataset.TimeDataset(data_path,sequence)
-
-    # train_X = train_X.to_numpy()
-    # test_X = test_X.to_numpy()
-    # TODO
-    # X = np.concatenate((train_X, test_X), axis=0) # 2858,3  -> 
-    # y = np.concatenate((train_y, test_y), axis=0)
-    # import pdb ; pdb.set_trace()
     X = this[:,:24,:]
     y = this[:,24:,:]
     final_index = (torch.ones(X.shape[0]) * 23).cuda()
@@ -78,7 +67,7 @@ def _process_data(data_path,sequence, missing_rate, intensity):
     
     times = torch.linspace(0, X.size(1) - 1, X.size(1)) # 0 ~ 181
 
-    # missing_rate != 0 이면 missing_rate 만큼 nan 값으로 대체
+    
     generator = torch.Generator().manual_seed(56789)
     for Xi in X:
         removed_points = torch.randperm(X.size(1), generator=generator)[:int(X.size(1) * missing_rate)].sort().values

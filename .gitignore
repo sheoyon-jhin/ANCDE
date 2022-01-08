@@ -4,7 +4,11 @@
 .vs/
 *.synctex.gz
 **/data/
-**/processed_data/
+**/processed_data/sepsis_nostaticintensity_notimeintensity/
+**/processed_data/sepsis_staticintensity_timeintensity/
+**/processed_data/Stock/
+**/processed_data/Stock_raw/
+**/processed_data/UEA/
 **.sh
 **.err
 **.log

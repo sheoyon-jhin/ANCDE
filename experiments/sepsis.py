@@ -48,16 +48,17 @@ def main(manual_seed=args.seed, intensity=args.intensity,                       
     # these models use the intensity for their evolution. They won't explicitly use it as an input unless we include it
     # via the use_intensity parameter, though.
     time_intensity = intensity or (model_name in ('odernn', 'dt', 'decay'))
-
+    #TODO
     times, train_dataloader, val_dataloader, test_dataloader = datasets.sepsis.get_data(static_intensity,
                                                                                         time_intensity,
                                                                                         batch_size)
     
     # time_intensity = True -> 1+ time_intensity = 2  
     input_channels = 1 + (1 + time_intensity) * 34
+    #TODO
     make_model = common.make_model(model_name, input_channels, 1, hidden_channels,
                                    hidden_hidden_channels, num_hidden_layers, use_intensity=intensity, initial=False)
-
+    
     def new_make_model():
         model, regularise = make_model()
         model.linear.weight.register_hook(lambda grad: 100 * grad)
@@ -70,6 +71,7 @@ def main(manual_seed=args.seed, intensity=args.intensity,                       
         intensity_str = '_intensity' if intensity else '_nointensity'
         name = 'sepsis' + intensity_str
     num_classes = 2
+    #TODO
     return common.main(name, times, train_dataloader, val_dataloader, test_dataloader, device,
                        new_make_model, num_classes, max_epochs, lr, kwargs, pos_weight=torch.tensor(pos_weight),
                        step_mode=True)
