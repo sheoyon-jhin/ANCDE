@@ -386,7 +386,7 @@ class NeuralCDE_forecasting(torch.nn.Module):
 
     It's known that linear functions on CDEs are universal approximators, so this is a very general type of model.
     """
-    def __init__(self, func, input_channels, hidden_channels, output_channels, initial=True):
+    def __init__(self, func, input_channels, hidden_channels, output_channels,output_time, initial=True):
         """
         Arguments:
             func: As cdeint.
@@ -404,12 +404,12 @@ class NeuralCDE_forecasting(torch.nn.Module):
         self.input_channels = input_channels
         self.hidden_channels = hidden_channels
         self.output_channels = output_channels
-        
+        self.output_time = output_time
         self.func = func
         self.initial = initial
         if initial and not isinstance(func, ContinuousRNNConverter):  # very ugly hack
             self.initial_network = torch.nn.Linear(input_channels, hidden_channels)
-        self.linear = torch.nn.Linear(hidden_channels, input_channels-1)
+        self.linear = torch.nn.Linear(hidden_channels, input_channels)
 
     def extra_repr(self):
         return "input_channels={}, hidden_channels={}, output_channels={}, initial={}" \
@@ -508,7 +508,8 @@ class NeuralCDE_forecasting(torch.nn.Module):
             z_t = z_t.gather(dim=0, index=final_index_indices).squeeze(0)
 
         # Linear map and return
-        pred_y = self.linear(z_t[:,times.shape[0]-1:,:])
+        
+        pred_y = self.linear(z_t[:,times.shape[0]-self.output_time:,:])
 
 
         return pred_y

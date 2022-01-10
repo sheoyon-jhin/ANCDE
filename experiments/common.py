@@ -262,7 +262,7 @@ def _train_loop_forecasting(
             with _SuppressAssertions(tqdm_range):
 
                 *train_coeffs, train_y, lengths = batch
-
+                # import pdb ;pdb.set_trace()
                 if model_name in NCDE_BASELINES:
                     pred_y = model(times, train_coeffs, lengths, stream=True, **kwargs)
 
@@ -937,6 +937,7 @@ def make_model(
                 input_channels=input_channels,
                 hidden_channels=hidden_channels,
                 output_channels=output_channels,
+                output_time =output_seq,
                 initial=initial,
             )
             return model, vector_field

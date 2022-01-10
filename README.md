@@ -58,7 +58,10 @@ python3 sepsis_attentive.py --seed 2021 --intensity 'True' --model="ancde" --h_c
 ```
 python3 stock.py --seed 2021 --input_seq 20 --output_seq 5 --model="ancde_forecasting" --h_channel 12 --hh_channel 12 --layer 2 --lr 0.001 --soft '' --slope_check 'True' --timewise '' --attention_channel 4 --attention_attention_channel 8 --step_mode 'valloss'
 ```
-
+### Google Stock(NCDE)
+```
+python3 stock.py --seed 2021 --input_seq 20 --output_seq 5 --model="ncde_forecasting" --h_channel 12 --hh_channel 12 --layer 2 --lr 0.001 --soft '' --slope_check 'True' --timewise '' --step_mode 'valloss'
+```
 
 ### Mujoco 
 ```
