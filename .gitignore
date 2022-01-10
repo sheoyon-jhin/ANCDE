@@ -9,12 +9,13 @@
 **/processed_data/Stock/
 **/processed_data/Stock_raw/
 **/processed_data/UEA/
+**/processed_data/Mujoco/
 **.sh
 **.err
 **.log
 **/example/
 **/0UEA_base/
-**.npy
+# **.npy
 **/Full_Results/
 **/results/
 **.ipynb
@@ -26,3 +27,7 @@
 **/Stock_1108/
 **/trained_model/
 **/UEA_1108/
+**/Google_h_prime/
+**/Mujoco_h_prime/
+**/Sepsis_h_prime/
+**/CharacterTrajectories_h_prime/

@@ -174,7 +174,7 @@ def _evaluate_metrics_forecasting(
                 pred_y = model(times, coeffs, lengths, **kwargs)
             else:
                 pred_y = model(times, coeffs, lengths, slope, stream=True, **kwargs)
-
+            
             true_y_cpu = true_y.detach().cpu()
             pred_y_cpu = pred_y.detach().cpu()
 
@@ -839,6 +839,7 @@ def make_model(
     atol,
     file,
     initial,
+    output_seq=1
 ):
 
     if name == "ncde":
@@ -892,7 +893,7 @@ def make_model(
     elif name == "ancde_forecasting":
 
         def make_model():
-            output_time = 1
+            
             vector_field_f = models.FinalTanh_ff6(
                 input_channels=input_channels,
                 hidden_atten_channels=attention_channel,
@@ -909,7 +910,7 @@ def make_model(
                 func=vector_field_f,
                 func_g=vector_field_g,
                 input_channels=input_channels,
-                output_time=output_time,
+                output_time=output_seq,
                 hidden_channels=hidden_channels,
                 output_channels=output_channels,
                 attention_channel=attention_channel,

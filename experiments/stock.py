@@ -34,9 +34,11 @@ def main(
     timewise=args.timewise,
     attention_channel=args.attention_channel,
     attention_attention_channel=args.attention_attention_channel,
-    sequence=args.sequence,
+    
     step_mode=args.step_mode,
     dry_run=False,
+    input_seq = args.input_seq,
+    output_seq =args.output_seq,
     **kwargs,
 ):
 
@@ -63,7 +65,8 @@ def main(
         input_channels,
     ) = datasets.stock.get_data(
         data_path,
-        sequence,
+        input_seq,
+        output_seq,
         missing_rate,
         device,
         intensity=intensity_data,
@@ -96,6 +99,7 @@ def main(
         atol=args.atol,
         file=file,
         initial=True,
+        output_seq=args.output_seq,
     )
 
     if dry_run:

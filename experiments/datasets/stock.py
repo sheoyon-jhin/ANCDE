@@ -23,10 +23,9 @@ def _pad(channel, maxlen):
 
 
 
-def _process_data(data_path,sequence, missing_rate, intensity):
+def _process_data(data_path,input_seq,output_seq, missing_rate, intensity):
     
     
-    # import pdb ; pdb.set_trace()
     data = np.loadtxt(data_path, delimiter=",", skiprows=1)
     total_length = len(data)
     data = data[::-1]
@@ -36,14 +35,12 @@ def _process_data(data_path,sequence, missing_rate, intensity):
     
     norm_data = time_dataset.normalize(data)
     total_length = len(norm_data)
-    # idx = np.array(range(total_length)).reshape(-1,1)
-    # norm_data = np.concatenate((norm_data),axis=1)#맨 뒤에 관측시간에 대한 정보 저장
-
+    
     seq_data = []
-    import pdb ;pdb.set_trace()
-    for i in range(len(norm_data) - sequence + 1): 
+    
+    for i in range(len(norm_data) - (input_seq+output_seq) + 1): 
         # 총 3662개의 sequence가 들어간다. 
-        x = norm_data[i : i + sequence]
+        x = norm_data[i : i + input_seq+output_seq]
         seq_data.append(x)
     
     samples = []
@@ -59,10 +56,10 @@ def _process_data(data_path,sequence, missing_rate, intensity):
             
             this0 = torch.reshape(torch.tensor(samples[j]),[1,torch.tensor(samples[j]).shape[0],torch.tensor(samples[j]).shape[1]])
             this = torch.cat([this,this0])
-
-    X = this[:,:24,:]
-    y = this[:,24:,:]
-    final_index = (torch.ones(X.shape[0]) * 23).cuda()
+    # import pdb ;pdb.set_trace()
+    X = this[:,:input_seq,:]
+    y = this[:,input_seq:,:]
+    final_index = (torch.ones(X.shape[0]) * input_seq).cuda()
             
     
     times = torch.linspace(0, X.size(1) - 1, X.size(1)) # 0 ~ 181
@@ -79,8 +76,7 @@ def _process_data(data_path,sequence, missing_rate, intensity):
     y=y.cuda()
     times = times.cuda()
     (times, train_coeffs, val_coeffs, test_coeffs, train_y, val_y, test_y, train_final_index, val_final_index,
-     test_final_index, input_channels) = common.preprocess_data_forecasting(times, X, y, final_index, append_times=True,
-                                                                append_intensity=intensity)
+     test_final_index, input_channels) = common.preprocess_data_forecasting(times, X, y, final_index)
 
     num_classes = 1
 
@@ -88,12 +84,12 @@ def _process_data(data_path,sequence, missing_rate, intensity):
             test_final_index, num_classes, input_channels)
 
 
-def get_data(data_path,sequence, missing_rate, device, intensity, batch_size):
+def get_data(data_path,input_seq,output_seq, missing_rate, device, intensity, batch_size):
     
     base_base_loc = here / 'processed_data'
-    base_loc = base_base_loc / 'Stock1'
+    base_loc = base_base_loc / 'Stock_test'
     dataset_name = "Stock"
-    loc = base_loc / (dataset_name + str(int(missing_rate * 100)) + ('_intensity' if intensity else ''))
+    loc = base_loc / (dataset_name +'_'+ str(int(missing_rate * 100))+'_'+str(input_seq)+'_'+str(output_seq)) 
     # import pdb ; pdb.set_trace()
     if os.path.exists(loc):
         tensors = common.load_data(loc)
@@ -118,7 +114,7 @@ def get_data(data_path,sequence, missing_rate, device, intensity, batch_size):
         if not os.path.exists(loc):
             os.mkdir(loc)
         (times, train_coeffs, val_coeffs, test_coeffs, train_y, val_y, test_y, train_final_index, val_final_index,
-        test_final_index, num_classes, input_channels) = _process_data(data_path,sequence, missing_rate, intensity)
+        test_final_index, num_classes, input_channels) = _process_data(data_path,input_seq,output_seq, missing_rate, intensity)
         
         common.save_data(loc,
                          times=times,

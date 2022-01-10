@@ -26,7 +26,7 @@ def parse_args():
     parser.add_argument('--c2', type=float, default=0,help='Hutchinson coefficient')
     parser.add_argument('--rtol', type=float, default=1e-11,help='ODEINT  Rtol ')
     parser.add_argument('--atol', type=float, default=1e-11,help='Hutchinson coefficient')
-    parser.add_argument('--sequence', type=int, default=24,help='Time sequence')
-    
+    parser.add_argument('--input_seq', type=int, default=24,help='Time input sequence')
+    parser.add_argument('--output_seq',type=int,default =1 ,help = 'Time output sequence')
     # parser.add_argyment('--')
     return parser.parse_args()

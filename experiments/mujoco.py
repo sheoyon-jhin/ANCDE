@@ -34,16 +34,18 @@ def main(
     timewise=args.timewise,
     attention_channel=args.attention_channel,
     attention_attention_channel=args.attention_attention_channel,
-    sequence=args.sequence,
+    
     step_mode=args.step_mode,
     dry_run=False,
+    input_seq = args.input_seq,
+    output_seq =args.output_seq,
     **kwargs,
 ):
 
-    batch_size = 200
+    batch_size = 1024
     lr = lr * (batch_size / 32)
     PATH = os.path.dirname(os.path.abspath(__file__))
-    data_path = PATH + "/datasets/stock_data.csv"
+    
 
     # input_channels = data[0].shape[1] - 1
     np.random.seed(manual_seed)
@@ -62,8 +64,8 @@ def main(
         num_classes,
         input_channels,
     ) = datasets.mujoco.get_data(
-        data_path,
-        sequence,
+        input_seq,
+        output_seq,
         missing_rate,
         device,
         intensity=intensity_data,
@@ -72,10 +74,7 @@ def main(
 
     output_channels = 1
     num_classes = 1
-    # if num_classes == 2:
-    #     output_channels = 1
-    # else:
-    #     output_channels = num_classes
+    
     print(input_channels)
     experiment_id = int(SystemRandom().random() * 100000)
     file = PATH + "/" + "Mujoco_h_prime/" + f"{experiment_id}.npy"
@@ -96,6 +95,7 @@ def main(
         atol=args.atol,
         file=file,
         initial=True,
+        output_seq=args.output_seq,
     )
 
     if dry_run:

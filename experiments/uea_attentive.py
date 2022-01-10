@@ -37,7 +37,7 @@ def main(
     c2=args.c2,
     rtol=args.rtol,
     atol=args.atol,
-    **kwargs,
+    **kwargs
 ):
 
     np.random.seed(manual_seed)

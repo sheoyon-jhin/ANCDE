@@ -24,31 +24,21 @@ def dataloader(dataset, **kwargs):
     return torch.utils.data.DataLoader(dataset, **kwargs)
 
 
-def split_data(tensor, stratify,socar=False):
+def split_data(tensor, stratify):
     # 0.7/0.15/0.15 train/val/test split
-    if socar :
-        print("setting : socar - True")
-        # 150 : 499* 0.3
-        train_tensor = None
-        val_tensor, test_tensor = sklearn.model_selection.train_test_split(tensor,
-                                                                        train_size=0.5,
-                                                                        random_state=1,
-                                                                        shuffle=True,
-                                                                        stratify=stratify)
-    else:
-        print("setting : socar - False")
-        (train_tensor, testval_tensor,
-        train_stratify, testval_stratify) = sklearn.model_selection.train_test_split(tensor, stratify,
-                                                                                    train_size=0.7,
-                                                                                    random_state=0,
-                                                                                    shuffle=True,
-                                                                                    stratify=stratify)
+    
+    (train_tensor, testval_tensor,
+    train_stratify, testval_stratify) = sklearn.model_selection.train_test_split(tensor, stratify,
+                                                                                train_size=0.7,
+                                                                                random_state=0,
+                                                                                shuffle=True,
+                                                                                stratify=stratify)
 
-        val_tensor, test_tensor = sklearn.model_selection.train_test_split(testval_tensor,
-                                                                        train_size=0.5,
-                                                                        random_state=1,
-                                                                        shuffle=True,
-                                                                        stratify=testval_stratify)
+    val_tensor, test_tensor = sklearn.model_selection.train_test_split(testval_tensor,
+                                                                    train_size=0.5,
+                                                                    random_state=1,
+                                                                    shuffle=True,
+                                                                    stratify=testval_stratify)
     return train_tensor, val_tensor, test_tensor
 
 
@@ -90,7 +80,7 @@ def preprocess_data(times, X, y, final_index, append_times, append_intensity):
     train_y, val_y, test_y = split_data(y, y)
     
     train_final_index, val_final_index, test_final_index = split_data(final_index, y)
-    import pdb ; pdb.set_trace()
+    
     
      
     train_coeffs = controldiffeq.natural_cubic_spline_coeffs(times.cuda(), train_X)
@@ -103,91 +93,29 @@ def preprocess_data(times, X, y, final_index, append_times, append_intensity):
             test_final_index, in_channels)
 
 
-def preprocess_data_forecasting(times, X, y, final_index, append_times, append_intensity):
+def preprocess_data_forecasting(times, X, y, final_index):
     
-    # import pdb ; pdb.set_trace()
+    
     X = X.cuda()
     print(f"in X.shape {X.shape}") 
+    train_len = int(X.shape[0] *0.7)
+    val_len = int(X.shape[0] *0.85)
+    train_X, train_y = X[:train_len], y[:train_len]
+    val_X, val_y = X[train_len:val_len],y[train_len:val_len]
+    test_X, test_y = X[val_len:], y[val_len:]
     
-    train_X, train_y = X[:2564], y[:2564]
-    val_X, val_y = X[2564:3113],y[2564:3113]
-    test_X, test_y = X[3113:], y[3113:]
     
-    
-    train_final_index, val_final_index, test_final_index = final_index[:2564],final_index[2564:3113],final_index[3113:]
+    train_final_index, val_final_index, test_final_index = final_index[:train_len],final_index[train_len:val_len],final_index[val_len:]
 
-    # import pdb ; pdb .set_trace()
-    # PATH = '/home/bigdyl/socar/NeuralCDE/experiments/datasets/processed_data/Stock_raw/70/'
-    # torch.save(train_X, PATH + 'train_X.pt')
-    # torch.save(val_X, PATH + 'val_X.pt')
-    # torch.save(test_X, PATH + 'test_X.pt')
-    # torch.save(train_y, PATH + 'train_y.pt')
-    # torch.save(val_y,  PATH + 'val_y.pt')
-    # torch.save(test_y,  PATH + 'test_y.pt')
-    # torch.save(train_final_index,  PATH + 'train_final_index.pt')
-    # torch.save(val_final_index,  PATH + 'val_final_index.pt')
-    # torch.save(test_final_index,  PATH + 'test_final_index.pt')
-    # # exit()
-    # import pdb; pdb.set_trace() # temporary stop to create dataset
-    
+    times=times.cuda()
     train_coeffs = controldiffeq.natural_cubic_spline_coeffs(times, train_X.cuda())
     val_coeffs = controldiffeq.natural_cubic_spline_coeffs(times, val_X.cuda())
     test_coeffs = controldiffeq.natural_cubic_spline_coeffs(times, test_X.cuda())
-    
+    # import pdb ;pdb.set_trace()
     in_channels = X.size(-1)
 
     return (times, train_coeffs, val_coeffs, test_coeffs, train_y, val_y, test_y, train_final_index, val_final_index,
             test_final_index, in_channels)
-
-
-def preprocess_data_socar(times, X, y, final_index, append_times, append_intensity):
-
-    
-    X = normalise_data(X, y) # torch.Size([2858, 182, 3])
-    print(f"in X.shape {X.shape}")
-    augmented_X = []
-    if append_times:
-        augmented_X.append(times.unsqueeze(0).repeat(X.size(0), 1).unsqueeze(-1))
-    if append_intensity: 
-        
-        intensity = ~torch.isnan(X)  # of size (batch, stream, channels)
-        intensity = intensity.to(X.dtype).cumsum(dim=1)
-        augmented_X.append(intensity)
-    augmented_X.append(X)
-    if len(augmented_X) == 1:
-        X = augmented_X[0]
-    else:
-        X = torch.cat(augmented_X, dim=2)
-    
-    i = 160
-    train_X= X[:i,:,:]
-    train_y = y[:i]
-    train_final_index= final_index[:i]
-    
-    X2 = X[i:,:,:]
-    y2 = y[i:]
-    final_index2 = final_index[i:]
-    _,val_X, test_X = split_data(X2, y2,socar=True)
-    _,val_y, test_y = split_data(y2, y2,socar=True)
-    _, val_final_index, test_final_index = split_data(final_index2, y2,socar=True)
-    print(f"Train Class Ratio at {i}: 0 : {(i-torch.sum(train_y))/i} 1 : {torch.sum(train_y)/i}")
-    print(f"Val Class Ratio   at {i}: 0 : {(val_y.shape[0]-torch.sum(val_y))/val_y.shape[0]} 1 : {torch.sum(val_y)/val_y.shape[0]}")
-    print(f"Test Class Ratio  at {i}: 0 : {(test_y.shape[0]-torch.sum(test_y))/test_y.shape[0]} 1 : {torch.sum(test_y)/test_y.shape[0]}")
-    
-    print("START Extrapolation")
-    train_coeffs = controldiffeq.natural_cubic_spline_coeffs(times, train_X)
-    print(" >> finish Interpolate_[train]")
-    val_coeffs = controldiffeq.natural_cubic_spline_coeffs(times, val_X)
-    print(" >> finish Interpolate_[validation]")
-    test_coeffs = controldiffeq.natural_cubic_spline_coeffs(times, test_X)
-    print(" >> finish Interpolate_[test]")
-        
-    
-    in_channels = X.size(-1)
-    print(f"in_channels {in_channels}")
-    return (times, train_coeffs, val_coeffs, test_coeffs, train_y, val_y, test_y, train_final_index, val_final_index,
-            test_final_index, in_channels)
-
 
 
 def wrap_data(times, train_coeffs, val_coeffs, test_coeffs, train_y, val_y, test_y, train_final_index, val_final_index,
