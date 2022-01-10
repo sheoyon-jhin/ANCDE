@@ -1039,6 +1039,7 @@ def make_model(
                 hidden_hidden_channels=hidden_hidden_channels,
                 num_hidden_layers=num_hidden_layers,
                 output_channels=output_channels,
+                output_time=output_seq,
                 use_intensity=use_intensity,
             )
             return model, model

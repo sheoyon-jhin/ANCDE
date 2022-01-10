@@ -81,20 +81,20 @@ class _GRU(torch.nn.Module):
 
 
 class _GRU_forecasting(torch.nn.Module):
-    def __init__(self, input_channels, hidden_channels, output_channels, use_intensity):
+    def __init__(self, input_channels, hidden_channels, output_channels,output_time, use_intensity):
         super(_GRU_forecasting, self).__init__()
 
-        assert (input_channels % 2) == 1, "Input channels must be odd: 1 for time, plus 1 for each actual input, " \
-                                          "plus 1 for whether an observation was made for the actual input."
+        # assert (input_channels % 2) == 1, "Input channels must be odd: 1 for time, plus 1 for each actual input, " \
+        #                                   "plus 1 for whether an observation was made for the actual input."
 
         self.input_channels = input_channels
         self.hidden_channels = hidden_channels
         self.output_channels = output_channels
         self.use_intensity = use_intensity
-
+        self.output_time=output_time
         gru_channels = input_channels if use_intensity else (input_channels - 1) // 2
         self.gru_cell = torch.nn.GRUCell(input_size=gru_channels, hidden_size=hidden_channels)
-        self.linear = torch.nn.Linear(hidden_channels, input_channels-1)
+        self.linear = torch.nn.Linear(hidden_channels, input_channels)
 
     def extra_repr(self):
         return "input_channels={}, hidden_channels={}, output_channels={}, use_intensity={}" \
@@ -119,7 +119,7 @@ class _GRU_forecasting(torch.nn.Module):
         
         interp = controldiffeq.NaturalCubicSpline(times, coeffs)
         X = torch.stack([interp.evaluate(t) for t in times], dim=-2)
-        half_num_channels = (self.input_channels - 1) // 2
+        half_num_channels = (self.input_channels) // 2
 
         # change cumulative intensity into intensity i.e. was an observation made or not, which is what is typically
         # used here
@@ -145,10 +145,10 @@ class _GRU_forecasting(torch.nn.Module):
             hs.append(h)
         out = torch.stack(hs, dim=1)
         
-        final_index_indices = final_index.unsqueeze(-1).expand(out.size(0), out.size(2)).unsqueeze(1)
-        final_out = out.gather(dim=1, index=final_index_indices.long()).squeeze(1)
-        
-        out = self.linear(final_out).unsqueeze(1)
+        # final_index_indices = final_index.unsqueeze(-1).expand(out.size(0), out.size(2)).unsqueeze(1)
+        # final_out = out.gather(dim=1, index=final_index_indices.long()).squeeze(1)
+        # import pdb ; pdb.set_trace()
+        out = self.linear(out[:,out.shape[1]-self.output_time:,:])
         
         return out
 
@@ -208,16 +208,17 @@ class ODERNN(_GRU):
 
 
 class ODERNN_forecasting(_GRU_forecasting):
-    def __init__(self, input_channels, hidden_channels, output_channels, hidden_hidden_channels, num_hidden_layers,
+    def __init__(self, input_channels, hidden_channels, output_channels, hidden_hidden_channels, num_hidden_layers,output_time,
                  use_intensity):
         super(ODERNN_forecasting, self).__init__(input_channels=input_channels,
                                      hidden_channels=hidden_channels,
                                      output_channels=output_channels,
+                                     output_time=output_time,
                                      use_intensity=use_intensity)
 
         self.hidden_hidden_channels = hidden_hidden_channels
         self.num_hidden_layers = num_hidden_layers
-
+        self.output_time = output_time
         self.func = _ODERNNFunc(hidden_channels, hidden_hidden_channels, num_hidden_layers)
 
     def extra_repr(self):
