@@ -54,18 +54,17 @@ python3 sepsis_attentive.py --seed 2021 --intensity '' --model="ancde" --h_chann
 ```
 python3 sepsis_attentive.py --seed 2021 --intensity 'True' --model="ancde" --h_channel 49 --hh_channel 49 --layer 4 --lr 0.00001  --soft 'True' --slope_check '' --timewise 'True' --attention_channel 20 --attention_attention_channel 20 --step_mode 'valloss'
 ```
-### Google Stock
+
+### Google Stock(single-step forecasting)
 ```
-python3 stock.py --seed 2021 --input_seq 20 --output_seq 5 --model="ancde_forecasting" --h_channel 12 --hh_channel 12 --layer 2 --lr 0.001 --soft '' --slope_check 'True' --timewise '' --attention_channel 4 --attention_attention_channel 8 --step_mode 'valloss'
+python3 stock.py --seed 2021 --input_seq 24 --output_seq 1 --model="ancde_forecasting" --h_channel 12 --hh_channel 12 --layer 2 --lr 0.001 --soft '' --slope_check 'True' --timewise '' --attention_channel 4 --attention_attention_channel 8 --step_mode 'valloss'
 ```
-### Google Stock(NCDE)
+
+### Google Stock(multi-step forecasting)
 ```
-python3 stock.py --seed 2021 --input_seq 20 --output_seq 5 --model="ncde_forecasting" --h_channel 12 --hh_channel 12 --layer 2 --lr 0.001  --step_mode 'valloss'
+python3 stock.py --seed 2021 --input_seq 20 --output_seq 5 --model="ancde_forecasting" --h_channel 15 --hh_channel 15 --layer 2 --lr 0.005 --soft '' --slope_check 'True' --timewise '' --attention_channel 4 --attention_attention_channel 8 --step_mode 'valloss'
 ```
-### Google Stock(ODERNN)
-```
-python3 stock.py --seed 2021 --input_seq 20 --output_seq 5 --model="odernn_forecasting" --h_channel 12 --hh_channel 12 --layer 2 --lr 0.001  --step_mode 'valloss'
-```
+
 ### Mujoco 
 ```
 python3 mujoco.py --seed 2021 --input_seq 20 --output_seq 5  --model="ancde_forecasting" --h_channel 12 --hh_channel 12 --layer 2 --lr 0.001 --soft '' --slope_check 'True' --timewise '' --attention_channel 4 --attention_attention_channel 8 --step_mode 'valloss'
