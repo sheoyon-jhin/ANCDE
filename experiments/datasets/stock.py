@@ -59,7 +59,7 @@ def _process_data(data_path,input_seq,output_seq, missing_rate, intensity):
     # import pdb ;pdb.set_trace()
     X = this[:,:input_seq,:]
     y = this[:,input_seq:,:]
-    final_index = (torch.ones(X.shape[0]) * input_seq).cuda()
+    final_index = (torch.ones(X.shape[0]) * (input_seq-1)).cuda()
             
     
     times = torch.linspace(0, X.size(1) - 1, X.size(1)) # 0 ~ 181
