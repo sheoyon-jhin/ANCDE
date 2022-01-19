@@ -118,8 +118,8 @@ class AttentiveVectorField(torch.nn.Module):
         if self.timewise:
             # equation 15
             # import pdb;pdb.set_trace()
-            self.h_prime = torch.Tensor(self.h_prime[self.t_idx,:,:])
-            dY_dt_2 = torch.mul(dY_dt_2_0,self.h_prime.to(dY_dt_2_0.device))
+            
+            dY_dt_2 = torch.mul(dY_dt_2_0,torch.Tensor(self.h_prime[self.t_idx,:,:]).to(dY_dt_2_0.device))
             # self.h_prime is dFC/dt
         else:
             # equation 16
