@@ -54,7 +54,7 @@ class VectorField_stack(torch.nn.Module):
         self.file = file
 
     def __call__(self, t, z):
-        
+        # import pdb;pdb.set_trace()
         control_gradient = self.dX_dt(t)
         vector_field = self.func(z)
         control_gradient = control_gradient.type(vector_field.type())
@@ -114,17 +114,22 @@ class AttentiveVectorField(torch.nn.Module):
         # dY_dt_1 is dXt/dt * a(t) in equation 15,16
         dY_dt_2_0 = torch.mul(torch.mul(a_t,(1-a_t)),Xt) 
         # dY_dt_2_0 is X(t) * a(t) *(1-a(t)) in equation 15,16
-
+        import pdb;pdb.set_trace()
         if self.timewise:
             # equation 15
+            # import pdb;pdb.set_trace()
+            self.h_prime = torch.Tensor(self.h_prime[self.t_idx,:,:])
             dY_dt_2 = torch.mul(dY_dt_2_0,self.h_prime.to(dY_dt_2_0.device))
             # self.h_prime is dFC/dt
         else:
             # equation 16
+            # import pdb;pdb.set_trace()
             dY_dt_2 = torch.mul(dY_dt_2_0,torch.Tensor(self.h_prime[self.t_idx,:,:]).to(dY_dt_2_0.device))
             # self.h_prime[self.t_idx] is dht/dt 
         dY_dt = (dY_dt_1+dY_dt_2).float()  # equation 15,16 
-       
+        # import pdb;pdb.set_trace()
+        # Y : 1024,40,14 
+        # dY_dt : 1024,14
         out = (Y@dY_dt.unsqueeze(-1)).squeeze(-1) # equation 14 g(z(t);theta_g) * dYt/dt
         self.t_idx +=1
         
