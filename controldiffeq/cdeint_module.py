@@ -114,7 +114,7 @@ class AttentiveVectorField(torch.nn.Module):
         # dY_dt_1 is dXt/dt * a(t) in equation 15,16
         dY_dt_2_0 = torch.mul(torch.mul(a_t,(1-a_t)),Xt) 
         # dY_dt_2_0 is X(t) * a(t) *(1-a(t)) in equation 15,16
-        import pdb;pdb.set_trace()
+        # import pdb;pdb.set_trace()
         if self.timewise:
             # equation 15
             # import pdb;pdb.set_trace()
