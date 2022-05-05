@@ -37,7 +37,7 @@ conda env create --file ancde.yml
 
 ### activate conda 
 ```
-conda activate ancde
+conda activate neuralcde
 ```
 
 ### UEA_CharacterTrajectories
