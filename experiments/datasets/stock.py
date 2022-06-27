@@ -28,7 +28,7 @@ def _process_data(data_path,input_seq,output_seq, missing_rate, intensity):
     
     data = np.loadtxt(data_path, delimiter=",", skiprows=1)
     total_length = len(data)
-    data = data[::-1]
+#     data = data[::-1]
     
     min_val = np.min(data, 0)
     max_val = np.max(data, 0) - np.min(data, 0)
