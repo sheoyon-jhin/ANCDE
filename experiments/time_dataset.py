@@ -27,7 +27,7 @@ class TimeDataset(torch.utils.data.Dataset):
         
         data = np.loadtxt(data_path, delimiter=",", skiprows=1)
         total_length = len(data)
-        data = data[::-1]
+#         data = data[::-1]
         
         self.min_val = np.min(data, 0)
         self.max_val = np.max(data, 0) - np.min(data, 0)
