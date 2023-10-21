@@ -1,6 +1,6 @@
 <h1 align='center'> Attentive Neural Controlled Differential Equations for Time-series Classification and Forecasting<br>
     for Time-Series Classification and Forecasting<br>
-    [<a href="https://arxiv.org/abs/2109.01876">arXiv</a>] </h1>
+    [<a href="https://arxiv.org/abs/2109.01876">ICDM 2021</a>] </h1>
 Neural networks inspired by differential equations have proliferated for the past several years. Neural ordinary differential equations (NODEs) and neural controlled differential equations (NCDEs) are two representative examples of them. In theory, NCDEs provide better representation learning capability for time-series data than NODEs. In particular, it is known that NCDEs are suitable for processing irregular time-series data. Whereas NODEs have been successfully extended after adopting attention, however, it had not been studied yet how to integrate attention into NCDEs. To this end, we present the method of Attentive Neural Controlled Differential Equations (ANCDEs) for time-series classification and forecasting, where dual NCDEs are used: one for generating attention values, and the other for evolving hidden vectors for a downstream machine learning task. We conduct experiments with three real-world time-series datasets and 10 baselines. After dropping some values, we also conduct irregular time-series experiments. Our method consistently shows the best accuracy in all cases by non-trivial margins. Our visualizations also show that the presented attention mechanism works as intended by focusing on crucial information.
 <p align="center">
   
