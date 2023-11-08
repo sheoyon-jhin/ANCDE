@@ -82,8 +82,9 @@ def main(
     print(input_channels)
     experiment_id = int(SystemRandom().random() * 100000)
     file = PATH + "/" + "Google_h_prime/" + f"{experiment_id}.npy"
-    if not os.path.exists(file):
-        os.makedirs(file)
+    SAVED_PATH = PATH + "/" + "Google_h_prime/"
+    if not os.path.exists(SAVED_PATH):
+        os.makedirs(SAVED_PATH)
     make_model = common.make_model(
         model_name,
         input_channels,
