@@ -76,7 +76,9 @@ def main(
     input_channels = 1 + (1 + time_intensity) * 34
     experiment_id = int(SystemRandom().random() * 100000)
     file = PATH + "/" + "Sepsis_h_prime/" + f"{experiment_id}.npy"
-
+    SAVED_PATH = PATH + "/" + "Sepsis_h_prime/"
+    if not os.path.exists(SAVED_PATH):
+        os.makedirs(SAVED_PATH)
     make_model = common.make_model(
         model_name,
         input_channels,
