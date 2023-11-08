@@ -78,6 +78,9 @@ def main(
         output_channels = num_classes
     experiment_id = int(SystemRandom().random() * 100000)
     file = PATH + "/" + dataset_name + "_h_prime/" + f"{experiment_id}.npy"
+    SAVED_PATH = PATH + "/" + dataset_name + "_h_prime/"
+    if not os.path.exists(SAVED_PATH):
+        os.makedirs(SAVED_PATH)
     if model_name in BASELINE_MODELS:
         make_model = common_org.make_model(
             model_name,
