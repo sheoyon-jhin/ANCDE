@@ -78,6 +78,9 @@ def main(
     print(input_channels)
     experiment_id = int(SystemRandom().random() * 100000)
     file = PATH + "/" + "Mujoco_h_prime/" + f"{experiment_id}.npy"
+    SAVED_PATH = PATH + "/" + "Mujoco_h_prime/"
+    if not os.path.exists(SAVED_PATH):
+        os.makedirs(SAVED_PATH)
     make_model = common.make_model(
         model_name,
         input_channels,
